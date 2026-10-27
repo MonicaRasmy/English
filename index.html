@@ -123,7 +123,15 @@ h1,h2,h3{margin:0}
 .opt .e{font-size:2rem;line-height:1}
 .opt .en{font-size:1.5rem;font-weight:700;flex:1;text-align:center}
 .opt.right{background:var(--ok-soft);border-color:var(--ok)}
-.opt.wrong{background:var(--lav-soft);border-color:var(--lav);opacity:.6}
+.opt{position:relative}
+.opt.wrong{background:var(--coral-soft);border-color:var(--coral);opacity:1}
+.opt.right::before,.opt.wrong::before{position:absolute;top:-9px;inset-inline-start:-6px;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:1rem;font-weight:800;line-height:1;box-shadow:0 2px 0 var(--shadow)}
+.opt.right::before{content:'✓';background:var(--ok);color:var(--on-ok)}
+.opt.wrong::before{content:'✗';background:var(--coral);color:var(--on-coral)}
+.opt .mean{display:block;font-size:.85rem;font-weight:500;color:var(--ink2);font-family:'Readex Pro','Segoe UI',system-ui,sans-serif;direction:rtl;text-align:center;line-height:1.3}
+.opt .col{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px}
+.opt:disabled{cursor:default;color:var(--ink)}
+.fb.bad{background:var(--coral-soft);color:var(--coral)}
 .opt.hint{border-color:var(--coral);animation:hint 1.1s ease-in-out infinite}
 @keyframes hint{50%{background:var(--coral-soft)}}
 .fb{text-align:center;font-weight:600;border-radius:16px;padding:10px 14px}
@@ -424,6 +432,13 @@ const LESSONS=[
    {q:'B for ___',ans:'Banana',opts:['Banana','Door','Coffee'],ar:'B زي موزة',emoji:'🍌',full:'B for Banana',item:'lb'}]}
 ];
 const ITEMS={};
+const WORD_AR={you:'إنت',me:'أنا / ـني',it:'ده / هو',morning:'الصبح',evening:'المسا',night:'الليل',fine:'كويس',name:'اسم',meet:'أقابل',good:'كويس / حلو',understand:'أفهم',apple:'تفاحة',banana:'موزة',egg:'بيضة',door:'باب',coffee:'قهوة',please:'من فضلك',sorry:'آسف',hello:'أهلاً',yes:'أيوه',no:'لأ',thank:'أشكر',one:'واحد',two:'اتنين',three:'تلاتة',four:'أربعة',five:'خمسة',six:'ستة',seven:'سبعة',eight:'تمانية',nine:'تسعة',ten:'عشرة'};
+let MEAN_IX=null;
+function normEn(t){return String(t||'').toLowerCase().replace(/[’']/g,'').replace(/[.?!…,]/g,'').replace(/\s+/g,' ').trim();}
+function meanOf(en){
+  if(!MEAN_IX){MEAN_IX={};Object.values(ITEMS).forEach(it=>{const a=arOf(it);MEAN_IX[normEn(it.en)]=a;if(it.key&&!/ /.test(it.key))MEAN_IX[normEn(it.key)]=MEAN_IX[normEn(it.key)]||a;});}
+  const k=normEn(en);return MEAN_IX[k]||WORD_AR[k]||'';
+}
 LESSONS.forEach((Ls,li)=>Ls.items.forEach(it=>{it.lesson=li;ITEMS[it.id]=it;}));
 const TOTAL_WORDS=Object.keys(ITEMS).length;
 const FUTURE_WORLDS=[['🏠','بيتي وعيلتي'],['🛒','يلا نتسوّق'],['🍽️','أكل ومطاعم'],['✈️','السفر'],['💬','كلام كل يوم'],['🩺','صحة وطوارئ'],['📞','إنجليزي الحياة الحقيقية']];
@@ -832,7 +847,7 @@ VIEWS.welcome=()=>{
     '<div class="mark"><span class="display">إنجليزي بالراحة</span><span class="en">English Bel Ra7a</span></div>'+
     (has?'<p class="h2 center">مين هيتعلم النهارده؟</p>':
       '<div class="bubble welcome-b"><p style="margin:0 0 6px;font-weight:600">أهلاً بيك في إنجليزي بالراحة! ❤️</p><p style="margin:0">هنا هنتعلم إنجليزي سوا، خطوة بخطوة، ومن غير أي ضغط.</p></div><p class="h2 center">مين هيتعلم النهارده؟</p>')+
-    '<div class="roles">'+btn('mom')+btn('dad')+Object.keys(S.profiles).filter(k=>k!=='mom'&&k!=='dad').map(k=>btn(k)).join('')+'</div><button class="btn ghost" data-act="adduser">➕ إضافة مستخدم (ولد / بنت)</button>'+
+    '<div class="roles">'+btn('mom')+btn('dad')+Object.keys(S.profiles).filter(k=>k!=='mom'&&k!=='dad').map(k=>btn(k)).join('')+missingKids().map(n=>'<button class="role kid" data-act="preset" data-n="'+esc(n)+'"><span class="e">🧒</span>'+esc(n)+'<small>ابدأ هنا</small></button>').join('')+'</div><button class="btn ghost" data-act="adduser">➕ إضافة مستخدم (ولد / بنت)</button>'+
     '<p class="center sub">اتعلم إنجليزي واحدة واحدة، واستمتع بكل خطوة ❤️</p>'+
     '<p class="center sub" style="font-size:.78rem">كل واحد ليه ملفه وتقدمه الخاص، وكله بيتحفظ لوحده على الجهاز.</p></div>';
 };
@@ -1094,20 +1109,26 @@ STEP.q=s=>{
   let head=(s.who?'<div class="turn '+s.who+'">دور '+esc(nameOf(s.who))+'</div>':'')+(s.review?'<div class="center"><span class="tag">مراجعة سريعة</span></div>':'');
   let body='';
   const cls=v=>{const ok=(s.k==='cz')?v===s.ans:v===s.id;return st.wrong.includes(v)?'wrong':(st.done&&ok)?'right':(st.hint&&!st.done&&ok)?'hint':'';};
+  const shown=v=>st.done&&((s.k==='cz')?v===s.ans:v===s.id)||st.wrong.includes(v);
+  const mean=(v,en)=>shown(v)&&meanOf(en)?'<span class="mean">يعني: '+esc(meanOf(en))+'</span>':'';
   const dis=v=>st.done||st.wrong.includes(v)?'disabled':'';
   if(s.k==='lc'){
     body='<p class="prompt" style="margin:0">اسمع وإختار المعنى</p>'+sayRow(s.id)+
-     '<div class="opts">'+s.opts.map(o=>'<button class="opt '+cls(o)+'" data-act="pick" data-v="'+o+'" '+dis(o)+'><span class="e">'+ITEMS[o].emoji+'</span><span>'+esc(arOf(ITEMS[o]))+'</span></button>').join('')+'</div>';
+     '<div class="opts">'+s.opts.map(o=>'<button class="opt '+cls(o)+'" data-act="pick" data-v="'+o+'" '+dis(o)+'><span class="e">'+ITEMS[o].emoji+'</span><span>'+esc(arOf(ITEMS[o]))+(shown(o)?' <span class="en" style="font-size:.95rem;color:var(--ink2)">('+esc(ITEMS[o].en)+')</span>':'')+'</span></button>').join('')+'</div>';
   }else if(s.k==='pc'){
     body='<p class="prompt" style="margin:0">إيه الكلمة بالإنجليزي؟</p><div class="vis sm">'+(it.vis||it.emoji)+'</div><p class="h2 center" style="margin:0">'+esc(arOf(it))+'</p>'+
-     '<div class="opts">'+s.opts.map(o=>'<button class="opt '+cls(o)+'" data-act="pick" data-v="'+o+'" '+dis(o)+'><span class="en">'+esc(ITEMS[o].en)+'</span></button>').join('')+'</div>';
+     '<div class="opts">'+s.opts.map(o=>'<button class="opt '+cls(o)+'" data-act="pick" data-v="'+o+'" '+dis(o)+'><span class="col"><span class="en">'+esc(ITEMS[o].en)+'</span>'+mean(o,ITEMS[o].en)+'</span></button>').join('')+'</div>';
   }else if(s.k==='cz'){
     const parts=s.q.split('___');
     body='<p class="prompt" style="margin:0">كمّل الجملة</p><div class="vis sm">'+s.emoji+'</div><div class="bubble"><div class="sentence en">'+esc(parts[0])+'<span class="blank">'+(st.done?esc(s.ans):'&nbsp;')+'</span>'+esc(parts[1]||'')+'</div><div class="ar">'+esc(s.ar)+'</div></div>'+
-     '<div class="opts">'+s.opts.map(o=>'<button class="opt '+cls(o)+'" data-act="pick" data-v="'+esc(o)+'" '+dis(o)+'><span class="en">'+esc(o)+'</span></button>').join('')+'</div>';
+     '<div class="opts">'+s.opts.map(o=>'<button class="opt '+cls(o)+'" data-act="pick" data-v="'+esc(o)+'" '+dis(o)+'><span class="col"><span class="en">'+esc(o)+'</span>'+mean(o,o)+'</span></button>').join('')+'</div>';
   }
-  const fb=st.done?'<div class="fb good">'+st.pr+(st.tries?' وأنت وصلت للإجابة':'').replace('وأنت',T('وإنتِ','وإنت'))+'</div><button class="btn coral" data-act="next">كمّل</button>':
-    (st.tries?'<div class="fb try">'+tryM[(st.tries-1)%tryM.length]+(st.hint?'<br><span style="font-weight:400">الإجابة بتومض — دوس عليها.</span>':'')+'</div>':'');
+  const lastW=st.wrong[st.wrong.length-1];
+  const ansEn=s.k==='cz'?s.full:it.en,ansAr=s.k==='cz'?s.ar:arOf(it);
+  const enS=t=>'<span class="en">'+esc(t)+'</span>';
+  const wrongTxt=lastW==null?'':s.k==='lc'?'«'+esc(arOf(ITEMS[lastW]))+'» يعني '+enS(ITEMS[lastW].en):s.k==='pc'?enS(ITEMS[lastW].en)+(meanOf(ITEMS[lastW].en)?' يعني «'+esc(meanOf(ITEMS[lastW].en))+'»':''):enS(lastW)+(meanOf(lastW)?' يعني «'+esc(meanOf(lastW))+'»':'');
+  const fb=st.done?'<div class="fb good">✅ صح! <span class="en">'+esc(ansEn)+'</span> = '+esc(ansAr)+'<br>'+st.pr+(st.tries?' وأنت وصلت للإجابة':'').replace('وأنت',T('وإنتِ','وإنت'))+'</div><button class="btn coral" data-act="next">كمّل</button>':
+    (st.tries?'<div class="fb bad">❌ غلط — '+wrongTxt+'</div><div class="fb try">'+tryM[(st.tries-1)%tryM.length]+(st.hint?'<br><span style="font-weight:400">الإجابة بتومض — دوس عليها.</span>':'')+'</div>':'');
   return head+body+fb;
 };
 STEP.sp=s=>{
@@ -1316,6 +1337,9 @@ ACT.onbfinish=()=>{
   if(o.addOnly&&prev){S.current=prev;ONB=null;save();toast('اتضاف ملف '+ROLE[o.role].label+' ✅');go('family');return;}
   S.current=o.role;ONB=null;save();go('startchoice');
 };
+const FAMILY_KIDS=['دودو','توتا','بوش','جاستي','موكموك'];
+function missingKids(){const have=Object.values(S.profiles).map(p=>(p.name||'').trim());return FAMILY_KIDS.filter(n=>!have.includes(n));}
+ACT.preset=d=>{ACT.adduser();ONB.name=d.n;rerender();};
 ACT.adduser=()=>{ONB={role:null,step:-1,isNew:true,g:null,emoji:'',name:'',prior:'none',why:[],mins:10,time:'morning',addOnly:false};go('onb');};
 ACT.onbgender=d=>{ONB.g=d.v;ONB.emoji=d.v==='f'?'👧':'👦';ONB.role='u'+Date.now().toString(36);ONB.step=0;go('onb');};
 ACT.deluser=(d,b)=>{
@@ -1580,7 +1604,7 @@ STEP.pq=s=>{
   const p=SENT[s.id];const st=PL.st.pq||(PL.st.pq={wrong:[],done:false});
   return '<p class="prompt" style="margin:0">إيه المثل المصري اللي معناه زي ده؟</p><div class="bubble"><div class="mid en">'+esc(p.en)+'</div></div>'+sayRow(null,p.say)+
    '<div class="opts">'+s.opts.map(o=>'<button class="opt '+(st.wrong.includes(o)?'wrong':(st.done&&o===s.id?'right':''))+'" data-act="pqpick" data-v="'+o+'" '+((st.done||st.wrong.includes(o))?'disabled':'')+'><span style="flex:1;text-align:center">'+esc(gf(SENT[o].eg))+'</span></button>').join('')+'</div>'+
-   (st.done?'<div class="fb good">برافو! ✨</div><button class="btn coral" data-act="next">كمّل</button>':(st.wrong.length?'<div class="fb try">'+T('قريب! جرّبي تاني 💛','قريب! جرّب تاني 💛')+'</div>':''));
+   (st.done?'<div class="fb good">✅ صح! برافو ✨</div><button class="btn coral" data-act="next">كمّل</button>':(st.wrong.length?'<div class="fb bad">❌ غلط</div><div class="fb try">'+T('قريب! جرّبي تاني 💛','قريب! جرّب تاني 💛')+'</div>':''));
 };
 ACT.pqpick=d=>{const s=PL.steps[PL.idx];const st=PL.st.pq;if(!st||st.done)return;if(d.v===s.id)st.done=true;else st.wrong.push(d.v);rerender();};
 STEP.cdone=s=>{
@@ -1948,10 +1972,27 @@ ACT.phint=()=>{
   const w=cat.w[pick(left)];const h=$('#phint');if(h)h.textContent='💡 كلمة بتبدأ بحرف «'+w.en[0].toUpperCase()+'» ومعناها: '+w.ar;
 };
 ACT.pqans=d=>{
-  if(!PT||PT.phase!=='play'||!PT.q)return;const q=PT.q;
-  if(d.v===q.e.en){PT.score++;say(q.e.en);}else{if(!PT.missed.some(x=>x.en===q.e.en))PT.missed.push(q.e);toast(q.e.e+' = '+q.e.en);}
-  if(!pqNext()){toast('جاوبت كل أسئلة دورك! 🎉');partyEnd();return;}
-  pqDraw();
+  if(!PT||PT.phase!=='play'||!PT.q||PT.lock)return;const q=PT.q;const ok=d.v===q.e.en;
+  if(ok){PT.score++;say(q.e.en);}else{if(!PT.missed.some(x=>x.en===q.e.en))PT.missed.push(q.e);}
+  const b=$('#pqbox');
+  if(b){
+    PT.lock=true;
+    b.querySelectorAll('[data-act=pqans]').forEach(el=>{
+      const v=el.dataset.v;el.disabled=true;
+      if(v===q.e.en)el.classList.add('right');else if(v===d.v)el.classList.add('wrong');else return;
+      const o=(q.opts||[]).find(x=>x.en===v);
+      if(PT.game==='pq'&&o&&(o.ar||meanOf(v)))el.insertAdjacentHTML('beforeend','<span class="mean">'+esc(o.ar||meanOf(v))+'</span>');
+      if(PT.game==='mm')el.insertAdjacentHTML('beforeend','<span class="mean en" style="direction:ltr">'+esc(v)+'</span>');
+    });
+    b.insertAdjacentHTML('beforeend','<div class="fb '+(ok?'good':'bad')+'" style="margin-top:10px">'+(ok?'✅ صح!':'❌ غلط — الصح: <span class="en">'+esc(q.e.en)+'</span>'+(q.e.ar?' = '+esc(q.e.ar):''))+'</div>');
+    if(PT.game==='pq'||PT.game==='mm')b.querySelectorAll('.opt').forEach(el=>{el.style.flexDirection='column';});
+    if(PT.online)olPush();
+  }
+  setTimeout(()=>{
+    PT&&(PT.lock=false);if(!PT||PT.phase!=='play'||PT.q!==q)return;
+    if(!pqNext()){toast('جاوبت كل أسئلة دورك! 🎉');partyEnd();return;}
+    pqDraw();
+  },b?(ok?700:1600):0);
 };
 ACT.pnext=()=>{
   if(PT.pi<PT.players.length-1){PT.pi++;PT.phase='ready';go('partyplay');return;}
@@ -2390,8 +2431,15 @@ function secOf(g){return SECTIONS.find(s=>s.groups.includes(g))||SECTIONS[0];}
 function passNeed(g){return PLACEMENT[g].length>=5?3:2;}
 function secCount(sec){return sec.groups.reduce((a,g)=>a+PLACEMENT[g].length,0);}
 newTest=function(){TS={begun:false,g:0,i:0,sc:PLACEMENT.map(()=>0),asked:PLACEMENT.map(()=>0),n:0,done:false,lvl:0,fresh:false,brk:null};loadQ();return TS;};
-ACT.tans=d=>{
+ACT.tans=(d,btn)=>{
+  if(TS.lock)return;
   const v=Number(d.v);const q=TS.q;let ok=false;if(v>=0)ok=(q.order[v]===q.ans);
+  const box=document.querySelectorAll('.opts [data-act=tans]');
+  if(box.length&&!TS.flashed){
+    TS.lock=true;box.forEach((el,i)=>{el.disabled=true;if(q.order[i]===q.ans)el.classList.add('right');else if(i===v)el.classList.add('wrong');});
+    const o=$('.opts');if(o)o.insertAdjacentHTML('afterend','<div class="fb '+(ok?'good':'bad')+'">'+(ok?'✅ صح!':v<0?'الإجابة الصح متعلّمة بالأخضر 👆':'❌ غلط — الصح متعلّم بالأخضر')+'</div>');
+    setTimeout(()=>{TS.lock=false;TS.flashed=true;ACT.tans(d,btn);TS.flashed=false;},ok?700:1500);return;
+  }
   if(ok)TS.sc[TS.g]++;TS.asked[TS.g]++;TS.n++;TS.i++;
   if(TS.i>=PLACEMENT[TS.g].length){
     if(TS.sc[TS.g]<passNeed(TS.g)||TS.g===PLACEMENT.length-1){finishTest();return;}
