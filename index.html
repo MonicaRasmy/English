@@ -847,7 +847,7 @@ VIEWS.welcome=()=>{
     '<div class="mark"><span class="display">إنجليزي بالراحة</span><span class="en">English Bel Ra7a</span></div>'+
     (has?'<p class="h2 center">مين هيتعلم النهارده؟</p>':
       '<div class="bubble welcome-b"><p style="margin:0 0 6px;font-weight:600">أهلاً بيك في إنجليزي بالراحة! ❤️</p><p style="margin:0">هنا هنتعلم إنجليزي سوا، خطوة بخطوة، ومن غير أي ضغط.</p></div><p class="h2 center">مين هيتعلم النهارده؟</p>')+
-    '<div class="roles">'+btn('mom')+btn('dad')+Object.keys(S.profiles).filter(k=>k!=='mom'&&k!=='dad').map(k=>btn(k)).join('')+missingKids().map(n=>'<button class="role kid" data-act="preset" data-n="'+esc(n)+'"><span class="e">🧒</span>'+esc(n)+'<small>ابدأ هنا</small></button>').join('')+'</div><button class="btn ghost" data-act="adduser">➕ إضافة مستخدم (ولد / بنت)</button>'+
+    '<div class="roles">'+btn('mom')+btn('dad')+Object.keys(S.profiles).filter(k=>k!=='mom'&&k!=='dad').map(k=>btn(k)).join('')+missingKids().map(n=>'<button class="role kid" data-act="preset" data-n="'+esc(n)+'"><span class="e">🧒</span>'+esc(n)+'<small>ابدأ هنا</small></button>').join('')+'</div><button class="btn ghost" data-act="adduser">➕ إضافة مستخدم (ولد / بنت)</button><button class="btn ghost" data-act="restorepick">📂 افتح ملف محفوظ (من موبايل تاني)</button>'+
     '<p class="center sub">اتعلم إنجليزي واحدة واحدة، واستمتع بكل خطوة ❤️</p>'+
     '<p class="center sub" style="font-size:.78rem">كل واحد ليه ملفه وتقدمه الخاص، وكله بيتحفظ لوحده على الجهاز.</p></div>';
 };
@@ -1337,6 +1337,35 @@ ACT.onbfinish=()=>{
   if(o.addOnly&&prev){S.current=prev;ONB=null;save();toast('اتضاف ملف '+ROLE[o.role].label+' ✅');go('family');return;}
   S.current=o.role;ONB=null;save();go('startchoice');
 };
+/* ---- per-user backup file: move one person's progress to any device ---- */
+ACT.backup=async()=>{
+  const p=P();if(!p)return;saveNow();
+  const data={app:'english-bel-ra7a',kind:'profile',v:1,saved:Date.now(),id:S.current,profile:p};
+  const nm=String(p.name||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||S.current;
+  const d=new Date();const day=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  const file=new File([JSON.stringify(data)],'english-'+nm+'-'+day+'.json',{type:'application/json'});
+  try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:'ملف '+(p.name||'')+' — إنجليزي بالراحة'});toast('تمام ✅');return;}}catch(e){if(e&&e.name==='AbortError')return;}
+  try{await DLD.d.save({filename:file.name,data:file});toast('اتحفظ الملف ✅ ابعته لنفسك عشان تفتحه على أي موبايل');}catch(e){toast('الحفظ اتلغى');}
+};
+ACT.restorepick=()=>{
+  const i=document.createElement('input');i.type='file';i.accept='.json,application/json';
+  i.addEventListener('change',()=>{const f=i.files&&i.files[0];if(!f)return;const r=new FileReader();r.onload=()=>restoreProfile(String(r.result||''));r.readAsText(f);});
+  i.click();
+};
+function restoreProfile(txt){
+  let d;try{d=JSON.parse(txt);}catch(e){toast('الملف ده مش ملف إنجليزي بالراحة');return;}
+  const p=d&&d.profile;
+  if(!d||d.app!=='english-bel-ra7a'||!p||typeof p!=='object'||!p.lessons||!p.words){toast('الملف ده مش ملف إنجليزي بالراحة');return;}
+  const name=(p.name||'').trim();
+  let key=(d.id==='mom'||d.id==='dad')?d.id:Object.keys(S.profiles).find(k=>S.profiles[k].kind==='kid'&&(S.profiles[k].name||'').trim()===name&&name);
+  if(!key)key='u'+Date.now().toString(36);
+  const old=S.profiles[key];
+  if(old&&!confirm((old.lastActive||0)>(p.lastActive||0)?'تقدّم «'+(old.name||ROLE[key].label)+'» اللي على الموبايل ده أحدث من الملف ده. تستبدليه بالملف برضه؟':'هنستبدل تقدّم «'+(old.name||ROLE[key].label)+'» اللي على الموبايل ده بالملف ده. موافقين؟'))return;
+  p.role=key;p.saved=d.saved||Date.now();S.profiles[key]=Object.assign(newProfile(key),p);
+  if(!S.current||R.route==='welcome')S.current=key;
+  saveNow();closeSheet();toast('رجع ملف '+(p.name||ROLE[key].label)+' ✅');
+  if(S.current===key){const q=P();q.prevActive=q.lastActive;touch();go('home');}else go(R.route==='welcome'?'welcome':R.route);
+}
 const FAMILY_KIDS=['دودو','توتا','بوش','جاستي','موكموك'];
 function missingKids(){const have=Object.values(S.profiles).map(p=>(p.name||'').trim());return FAMILY_KIDS.filter(n=>!have.includes(n));}
 ACT.preset=d=>{ACT.adduser();ONB.name=d.n;rerender();};
@@ -2520,6 +2549,7 @@ function openSheet(){
    '<div><label for="setTime">تذكير يومي</label><div class="row"><input id="setTime" type="time" value="'+esc(p.remind||'09:00')+'"><button class="btn ghost small" data-act="remind" style="flex:1">📅 نزّل تذكير للتقويم</button></div><p class="sub" style="margin:6px 0 0;font-size:.78rem">بينزل ملف تضيفه لتقويم موبايلك، والتذكير بيتكرر كل يوم. (الصفحة نفسها مبتبعتش إشعارات.)</p></div>'+
    '<div><label for="setKey">مفتاح Claude API (للمدرس الذكي)</label><input id="setKey" type="password" dir="ltr" autocomplete="off" spellcheck="false" placeholder="sk-ant-…" value="'+esc(apiKey())+'"><p class="sub" style="margin:6px 0 0;font-size:.78rem">اختياري — كل حاجة تانية شغالة من غيره. بيتحفظ على الجهاز ده بس وبيروح لـ Anthropic مباشرة. تعمله من console.anthropic.com</p></div>'+
    (SRC?'<div><label for="setSr">لهجة التعرّف على الصوت</label><select id="setSr">'+[['en-US','أمريكي (US)'],['en-GB','بريطاني (UK)'],['en-AU','أسترالي'],['en-IN','هندي — أحياناً بيفهم اللكنات أحسن']].map(o=>'<option value="'+o[0]+'" '+((S.settings.srLang||'en-US')===o[0]?'selected':'')+'>'+o[1]+'</option>').join('')+'</select><button class="btn ghost small" style="margin-top:8px" data-act="mictest">🎤 جرّب الميكروفون</button><p class="sub" id="micTestOut" style="margin:6px 0 0"></p></div>':'<p class="sub">التعرّف على الصوت مش متاح في المتصفح ده. جرّب Chrome أو Safari.</p>')+'<hr><button class="btn ghost" data-act="starttest">🎯 اختبار تحديد المستوى</button><button class="btn ghost" data-act="switchprofile">🔄 غيّر الشخص (ماما / بابا)</button>'+
+   '<div><label>نسخة من ملف '+esc(p.name||ROLE[S.current].label)+'</label><div class="row"><button class="btn ghost small" data-act="backup">💾 حفظ نسخة من ملفي</button><button class="btn ghost small" data-act="restorepick">📂 افتح ملف محفوظ</button></div><p class="sub" style="margin:6px 0 0;font-size:.78rem">الملف فيه تقدّمك إنت بس. ابعته لنفسك على واتساب، وافتحه من الزرار ده على أي موبايل تاني عشان تكمّل من نفس المكان.</p></div>'+
    (p.kind==='kid'?'<button class="btn ghost" data-act="deluser" style="color:var(--coral)">حذف '+esc(p.name||'المستخدم')+' من التطبيق</button>':'')+'<button class="btn ghost" data-act="resetme" style="color:var(--coral)">مسح تقدّمي من الأول</button>'+
    '</div></div></div>';
   $('#sheetHost').innerHTML=h;
