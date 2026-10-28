@@ -894,6 +894,7 @@ VIEWS.home=()=>{
   let cont;
   if(p.resume&&p.resume.kind==='lesson'){const L=LESSONS[p.resume.lessonIdx];
     cont='<button class="tile a" data-act="openlesson" data-i="'+p.resume.lessonIdx+'"><span class="em">'+L.emoji+'</span><span><span class="t">كمّل من حيث وقفنا</span><br><span class="s">'+esc(L.title)+'</span></span></button>';
+  }else if(p.placed&&(p.level||0)>=1){cont=lvTile(p);
   }else if(ni>=0){const L=LESSONS[ni];
     cont='<button class="tile a" data-act="openlesson" data-i="'+ni+'"><span class="em">'+L.emoji+'</span><span><span class="t">'+(ni===0?'ابدأ أول درس':'الدرس الجاي')+'</span><br><span class="s">'+esc(L.title)+' · '+toAr(L.items.length)+' حاجات جديدة'+'</span></span></button>';
   }else cont='<div class="card center"><span class="h2">🎉 خلّصنا الدنيا الأولى كلها!</span><p class="sub" style="margin:6px 0 0">راجع كلماتك، والعب، وجرّب مواقف من الحياة الحقيقية.</p></div>';
@@ -911,7 +912,8 @@ VIEWS.home=()=>{
 /* ---- learn ---- */
 VIEWS.learn=()=>{
   const p=P();const done=lessonsDone(p);
-  return '<div class="stack">'+
+  const lvc=lvCard(p);const lvTop=p.placed&&(p.level||0)>=1;
+  return '<div class="stack">'+(lvTop?lvc:'')+
    '<div class="card" style="background:var(--lav-soft);border-color:transparent"><div class="row"><span style="font-size:2.6rem;flex:none">🌱</span><div style="flex:1"><p class="h2" style="margin:0">الدنيا الأولى: كلماتي الأولى</p><p class="sub" style="margin:2px 0 8px">'+toAr(done)+' من '+toAr(LESSONS.length)+' دروس</p><div class="meter"><i style="width:'+(done/LESSONS.length*100)+'%"></i></div></div></div></div>'+
    '<div class="grid2">'+LESSONS.map((L,i)=>{
       const st=p.lessons[L.id];const open=unlocked(p,i);const res=p.resume&&p.resume.lessonIdx===i;
@@ -919,7 +921,7 @@ VIEWS.learn=()=>{
         '<span class="num">'+(st&&st.done?ic('check').replace('<svg','<svg width="24" height="24"'):toAr(i+1))+'</span>'+
         '<span class="em">'+L.emoji+'</span><span style="flex:1"><span class="t">'+esc(L.title)+'</span><br><span class="s en" style="direction:ltr;font-size:.8rem">'+esc(L.sub)+'</span></span>'+
         (open?(res?'<span class="tag">كمّل</span>':st&&st.done?'<span class="s">'+'⭐'.repeat(st.stars||2)+'</span>':''):ic('lock'))+'</button>';}).join('')+'</div>'+
-   '<div class="card"><p class="h2" style="margin:0 0 8px">الدنيا الجاية</p><p class="sub" style="margin:0 0 10px">بتفتح بعد ما نخلّص الدنيا الأولى. شغالين عليها!</p><div class="chips">'+FUTURE_WORLDS.map((w,i)=>'<span class="chip" style="opacity:.6">'+w[0]+' '+w[1]+'</span>').join('')+'</div></div></div>';
+   (lvTop?'':lvc)+'<div class="card"><p class="h2" style="margin:0 0 8px">الدنيا الجاية</p><p class="sub" style="margin:0 0 10px">بتفتح بعد ما نخلّص الدنيا الأولى. شغالين عليها!</p><div class="chips">'+FUTURE_WORLDS.map((w,i)=>'<span class="chip" style="opacity:.6">'+w[0]+' '+w[1]+'</span>').join('')+'</div></div></div>';
 };
 
 /* ---- review hub ---- */
@@ -938,8 +940,8 @@ VIEWS.review=()=>{
 VIEWS.play=()=>{
   const p=P();const n=learnedIds(p).length;
   const g=(cls,e,t,s,act,extra)=>'<button class="tile '+cls+'" data-act="'+act+'" '+(extra||'')+'><span class="em">'+e+'</span><span><span class="t">'+t+'</span><br><span class="s">'+s+'</span></span></button>';
-  return '<div class="stack"><p class="h1" style="margin:4px 0 0">العب وإنت بتتعلم 🎲</p>'+
-   (n<3?'<div class="card" style="background:var(--warn-soft);border-color:transparent">الألعاب بتستخدم الكلمات اللي اتعلمتها. خلّص أول درس الأول، لكن «دوّر على الكلمات» شغالة من دلوقتي.</div>':'')+
+  return '<div class="stack"><p class="h1" style="margin:4px 0 0">العب وإنت بتتعلم 🎲</p>'+gameLvlSeg(p)+
+   (n<3&&!gameLvlOf(p)?'<div class="card" style="background:var(--warn-soft);border-color:transparent">الألعاب بتستخدم الكلمات اللي اتعلمتها. خلّص أول درس الأول، لكن «دوّر على الكلمات» شغالة من دلوقتي.</div>':'')+
    g('a','🎧','اسمع واختار','تسمع كلمة وتختار معناها','game','data-k="lc"')+
    g('b','🖼️','طابق الصورة','الصورة والمعنى → الكلمة الإنجليزي','game','data-k="pc"')+
    g('c','✏️','كمّل الجملة','اختار الكلمة الناقصة','game','data-k="cz"')+
@@ -1084,9 +1086,9 @@ STEP.teach=s=>{
   const n=PL.steps.filter(x=>x.t==='teach').length,k=PL.steps.filter((x,i)=>x.t==='teach'&&i<=PL.idx).length;
   const arBtn=(arVoice()?'<button class="btn ghost small" data-act="sayar" data-id="'+it.id+'" style="width:auto;margin:0 auto">🔈 اسمع الشرح بالعربي</button>':'');
   return '<p class="sub center" style="margin:0">كلمة '+toAr(k)+' من '+toAr(n)+'</p><div class="vis'+(it.vis?' sm':'')+'">'+(it.vis||it.emoji)+'</div>'+bubbleOf(it)+sayRow(it.id)+
-   '<p class="say-guide" style="margin:0">النطق: «'+esc(it.say)+'»</p>'+
+   (it.say?'<p class="say-guide" style="margin:0">النطق: «'+esc(it.say)+'»</p>':'')+
    (it.tip?'<div class="tip">💡 '+esc(it.tip)+'</div>':'')+
-   '<p class="scene" style="margin:0">مثال: '+esc(it.scene)+'</p>'+arBtn+
+   (it.scene?'<p class="scene" style="margin:0">مثال: '+esc(it.scene)+'</p>'+arBtn:'')+
    '<p class="prompt" style="margin:0">'+T('رددي','ردد')+' ورايا:</p>'+micHTML()+
    '<button class="btn coral" data-act="next">كمّل</button>';
 };
@@ -1769,7 +1771,8 @@ function testResult(){
   return '<div class="stack center" style="padding-top:12px"><div class="vis">'+(TS.lvl>=3?'🌟':TS.lvl>=1?'🌱':'🌤️')+'</div><p class="h1" style="margin:0">'+T('خلّصتي! 🎉','خلصت! 🎉')+'</p>'+
    '<div class="card"><p class="h2" style="margin:0">'+esc(gf(L.n))+'</p><p style="margin:8px 0 0">'+esc(gf(L.d))+'</p><p class="sub" style="margin:8px 0 0">'+esc(gf(L.plan))+'</p></div>'+
    (TS.lvl>=1?'<p class="sub" style="margin:0">الكلمات اللي عرفتيها هتظهر لك في المراجعة عشان نتأكد منها بالراحة.'.replace('عرفتيها',T('عرفتيها','عرفتها')).replace('لك',T('لك','لك'))+'</p>':'')+
-   (TS.lvl>=1&&nx?'<button class="btn coral" data-act="convo" data-id="'+nx.id+'">💬 ابدأ محادثة: '+esc(nx.ar)+'</button>':'<button class="btn coral" data-act="openlesson" data-i="0">🌱 ابدأ أول درس</button>')+
+   (TS.lvl>=1?'<button class="btn coral" data-act="lvwords" data-lv="'+cefrPlay(TS.lvl)+'">📚 ابدأ كلمات مستواك ('+LVL_NAME[cefrPlay(TS.lvl)]+')</button>':'')+
+   (TS.lvl>=1&&nx?'<button class="btn blue" data-act="convo" data-id="'+nx.id+'">💬 ابدأ محادثة: '+esc(nx.ar)+'</button>':'<button class="btn coral" data-act="openlesson" data-i="0">🌱 ابدأ أول درس</button>')+
    '<button class="btn ghost" data-act="home">'+ic('house')+'الرئيسية</button></div>';
 }
 VIEWS.startchoice=()=>{
@@ -1847,9 +1850,9 @@ function pickCats(level,n){
 }
 function ptTarget(cat){const L=PT&&PT.level;return cat.w.map((w,i)=>i).filter(i=>!L||cat.w[i].lv===L);}
 function levelSeg(cur,act,k,game){
-  const opts=[[1,'سهل 🌱'],[2,'متوسط 🌿'],[3,'صعب 🌳'],[0,'الكل 🌍']];
-  const info={1:'كلمات شائعة وقصيرة',2:'كلمات عادية من الحياة اليومية',3:'كلمات أطول وأصعب',0:'خليط من كل المستويات'};
-  return '<div><label style="font-weight:600;display:block;margin-bottom:6px">مستوى الكلمات</label><div class="seg">'+opts.map(o=>'<button class="'+(cur===o[0]?'on':'')+'" data-act="'+act+'"'+(k?' data-k="'+k+'"':'')+' data-v="'+o[0]+'">'+o[1]+'</button>').join('')+'</div><p class="sub" style="margin:6px 0 0;font-size:.82rem">'+info[cur]+(game==='wl'?' · أي كلمة صح من مستوى تاني بتتحسب بونص ⭐':'')+' · الأسئلة مش بتتكرر</p></div>';
+  const opts=[[1,'A1 🌱'],[2,'A2'],[3,'B1'],[4,'B2'],[5,'C1'],[6,'C2 🌳'],[0,'الكل 🌍']];
+  const info={1:'سهل — كلمات شائعة وقصيرة',2:'كلمات عادية من الحياة اليومية',3:'متوسط — كلمات أطول',4:'فوق المتوسط',5:'متقدم',6:'محترف — أصعب كلمات',0:'خليط من كل المستويات'};
+  return '<div><label style="font-weight:600;display:block;margin-bottom:6px">مستوى الكلمات</label><div class="seg" style="grid-auto-flow:row;grid-template-columns:repeat(4,1fr)">'+opts.map(o=>'<button class="'+(cur===o[0]?'on':'')+'" data-act="'+act+'"'+(k?' data-k="'+k+'"':'')+' data-v="'+o[0]+'">'+o[1]+'</button>').join('')+'</div><p class="sub" style="margin:6px 0 0;font-size:.82rem">'+info[cur]+(game==='wl'?' · أي كلمة صح من مستوى تاني بتتحسب بونص ⭐':'')+' · الأسئلة مش بتتكرر</p></div>';
 }
 function normW(s){return String(s||'').toLowerCase().replace(/[’']/g,'').replace(/[^a-z0-9\s]/g,' ').replace(/\s+/g,' ').trim();}
 function wForms(w){const f=[w];if(!/\d/.test(w)){f.push(w+'s',w+'es');if(w.endsWith('y'))f.push(w.slice(0,-1)+'ies');}return f;}
@@ -2525,7 +2528,8 @@ testResult=function(){
   return '<div class="stack center" style="padding-top:12px"><div class="vis">'+(TS.lvl>=6?'🏆':TS.lvl>=4?'🌟':TS.lvl>=1?'🌱':'🌤️')+'</div><p class="h1" style="margin:0">'+T('خلّصتي! 🎉','خلصت! 🎉')+'</p>'+
    '<div class="card"><p class="sub" style="margin:0">مستواك اللي عدّيته</p><p class="h2" style="margin:4px 0 0">'+esc(gf(L.n))+'</p><p style="margin:8px 0 0">'+esc(gf(L.d))+'</p><p class="sub" style="margin:8px 0 0">'+esc(gf(L.plan))+'</p></div>'+
    '<div class="card stack">'+rows+'</div>'+
-   (TS.lvl>=1&&nx?'<button class="btn coral" data-act="convo" data-id="'+nx.id+'">💬 ابدأ محادثة: '+esc(nx.ar)+'</button>':'<button class="btn coral" data-act="openlesson" data-i="0">🌱 ابدأ أول درس</button>')+
+   (TS.lvl>=1?'<button class="btn coral" data-act="lvwords" data-lv="'+cefrPlay(TS.lvl)+'">📚 ابدأ كلمات مستواك ('+LVL_NAME[cefrPlay(TS.lvl)]+')</button>':'')+
+   (TS.lvl>=1&&nx?'<button class="btn blue" data-act="convo" data-id="'+nx.id+'">💬 ابدأ محادثة: '+esc(nx.ar)+'</button>':'<button class="btn coral" data-act="openlesson" data-i="0">🌱 ابدأ أول درس</button>')+
    '<button class="btn ghost" data-act="home">'+ic('house')+'الرئيسية</button></div>';
 };
 
@@ -2645,6 +2649,85 @@ document.addEventListener('keydown',e=>{
   if(best){e.preventDefault();best.focus();try{best.scrollIntoView({block:'nearest'});}catch(err){}}
   else if(dir[0])e.preventDefault();
 });
+/* ============================================================
+   Level-based content: after the placement test, and level choice in games
+   ============================================================ */
+const LVL_NAME=['كلماتي','A1','A2','B1','B2','C1','C2'];
+const LVL_DESC={1:'سهل — كلمات الحياة اليومية',2:'كلمات أكتر للبيت والشغل والخروج',3:'متوسط — كلمات للكلام عن آراءك وتجاربك',4:'فوق المتوسط — كلمات أدق',5:'متقدم — كلمات للكلام الرسمي',6:'محترف — كلمات نادرة وراقية'};
+const LVL_IDS={};
+(function buildLevelWords(){
+  const seen=new Set(Object.values(ITEMS).map(it=>normEn(it.en)));
+  const add=(w,lv)=>{const k=normEn(w.en);if(!k||!w.ar||seen.has(k))return;seen.add(k);const id='v:'+k.replace(/\s+/g,'_');
+    ITEMS[id]={id,en:w.en,ar:w.ar,emoji:w.e||'',say:'',tip:'',scene:'',lesson:100+lv,cefr:lv};(LVL_IDS[lv]=LVL_IDS[lv]||[]).push(id);};
+  VOCAB.forEach(w=>add(w,w.cefr));CATS.forEach(c=>c.w.forEach(w=>add(w,c.cefr)));
+  MEAN_IX=null;
+})();
+function myCefr(p){return p&&p.placed?cefrPlay(p.level):0;}
+function lvWords(lv){return LVL_IDS[lv]||[];}
+function lvSeen(p,lv){return lvWords(lv).filter(id=>p.words[id]&&p.words[id].seen).length;}
+function gameLvlOf(p){return p.gameLvl!=null?p.gameLvl:(p.placed&&(p.level||0)>=1?cefrPlay(p.level):0);}
+function startLevelWords(lv,origin){
+  const p=P();const all=lvWords(lv);if(!all.length)return;
+  const fresh=shuffle(all.filter(id=>!(p.words[id]&&p.words[id].seen))).slice(0,5);
+  let steps;
+  if(fresh.length){
+    steps=fresh.map(id=>({t:'teach',id}));
+    steps=steps.concat(shuffle(fresh.map((id,i)=>(i%2&&ITEMS[id].emoji)?mkPC(id,all):mkLC(id,all))));
+  }else{
+    toast('خلّصت كل كلمات '+LVL_NAME[lv]+' 🎉 دي مراجعة سريعة');
+    steps=shuffle(all).slice(0,6).map((id,i)=>i%2?mkPC(id,all):mkLC(id,all));
+  }
+  steps.push({t:'sum'});
+  startPlayer({kind:'game',steps,origin:origin||'learn',again:true,againFn:()=>startLevelWords(lv,origin)});
+}
+ACT.lvwords=d=>startLevelWords(Number(d.lv),R.route==='home'?'home':'learn');
+function lvTile(p){
+  const lv=myCefr(p);const left=lvWords(lv).length-lvSeen(p,lv);const nxt=Math.min(6,lv+1);
+  if(left<=0&&lv<6)return '<button class="tile a" data-act="lvwords" data-lv="'+nxt+'"><span class="em">🚀</span><span><span class="t">خلّصت '+LVL_NAME[lv]+'! نبدأ '+LVL_NAME[nxt]+'</span><br><span class="s">'+esc(LVL_DESC[nxt])+'</span></span></button>';
+  return '<button class="tile a" data-act="lvwords" data-lv="'+lv+'"><span class="em">📚</span><span><span class="t">كلمات مستواك · '+LVL_NAME[lv]+'</span><br><span class="s">'+(left>0?wordsAr(left)+' جديدة مستنياك · ٥ كل مرة':'خلّصتهم كلهم — مراجعة')+'</span></span></button>';
+}
+function lvCard(p){
+  const mine=myCefr(p);
+  return '<div class="card stack"><div><p class="h2" style="margin:0">كلمات حسب المستوى 📚</p><p class="sub" style="margin:2px 0 0">'+(p.placed?'على حسب الاختبار، المناسب ليك هو <b class="en">'+LVL_NAME[mine]+'</b> — وتقدر تختار أي مستوى':T('اعملي اختبار المستوى عشان نقولك تبدأي منين — أو اختاري بنفسك','اعمل اختبار المستوى عشان نقولك تبدأ منين — أو اختار بنفسك'))+'</p></div>'+
+   [1,2,3,4,5,6].map(lv=>{const n=lvWords(lv).length,k=lvSeen(p,lv);
+     return '<button class="lrow '+(k>=n?'done':'')+'" data-act="lvwords" data-lv="'+lv+'"><span class="num en" style="font-size:1rem">'+LVL_NAME[lv]+'</span><span style="flex:1"><span class="t">'+esc(LVL_DESC[lv])+'</span><br><span class="s">'+toAr(k)+' من '+toAr(n)+' كلمة</span></span>'+(p.placed&&lv===mine?'<span class="tag">مناسب ليك</span>':'')+'</button>';}).join('')+'</div>';
+}
+function clozeForLevel(lv){
+  let ds=DIALOGS.filter(d=>d.lv===lv+1);
+  for(let dist=1;ds.length<2&&dist<7;dist++)ds=ds.concat(DIALOGS.filter(d=>d.lv===lv+1-dist||d.lv===lv+1+dist));
+  const clean=w=>w.replace(/^[^A-Za-z’']+|[^A-Za-z’']+$/g,'');
+  const STOP=new Set(['the','and','for','are','you','was','but','not','can','has','had','his','her','its','our','she','him','they','them','this','that','with']);
+  const lines=[];ds.forEach(d=>d.lines.forEach(l=>lines.push({d,l,en:lineEn(l)})));
+  const bank=[...new Set(lines.flatMap(x=>x.en.split(' ').map(clean)).filter(w=>/^[a-z]{3,}$/.test(w)&&!STOP.has(w)))];
+  return shuffle(lines).map(x=>{
+    const toks=x.en.split(' ');const cand=toks.map((t,i)=>i).filter(i=>/^[a-z]{3,}$/.test(clean(toks[i]))&&!STOP.has(clean(toks[i])));
+    if(!cand.length)return null;const i=pick(cand);const ans=clean(toks[i]);
+    const others=shuffle(bank.filter(w=>w!==ans)).slice(0,2);if(others.length<2)return null;
+    const q=toks.map((t,j)=>j===i?t.replace(ans,'___'):t).join(' ');
+    return {q,ans,opts:[ans].concat(others),ar:gf(x.l.ar),emoji:x.d.emoji,full:x.en,item:null};
+  }).filter(Boolean).slice(0,6);
+}
+const _startGameBase=startGame;
+startGame=function(k){
+  const p=P();const gl=gameLvlOf(p);
+  if(!gl||k==='family'){_startGameBase(k);return;}
+  const all=lvWords(gl);let steps=[];
+  if(k==='lc')steps=shuffle(all).slice(0,6).map(id=>mkLC(id,all));
+  else if(k==='pc'){const em=all.filter(id=>ITEMS[id].emoji);steps=shuffle(em.length>=6?em:all).slice(0,6).map(id=>mkPC(id,all));}
+  else if(k==='mem')steps=[{t:'mem',ids:shuffle(all).slice(0,6)}];
+  else if(k==='cz')steps=clozeForLevel(gl).map(c=>mkCZ(c));
+  if(!steps.length){_startGameBase(k);return;}
+  steps.push({t:'sum'});
+  startPlayer({kind:'game',steps,origin:'play',again:true,againFn:()=>startGame(k)});
+};
+ACT.setglvl=d=>{P().gameLvl=Number(d.v);save();rerender();};
+function gameLvlSeg(p){
+  const cur=gameLvlOf(p);
+  return '<div class="card stack"><p class="h2" style="margin:0">مستوى الألعاب</p><div class="seg" style="grid-auto-flow:row;grid-template-columns:repeat(4,1fr)">'+
+   [0,1,2,3,4,5,6].map(v=>'<button class="'+(cur===v?'on':'')+'" data-act="setglvl" data-v="'+v+'">'+(v?'<span class="en">'+LVL_NAME[v]+'</span>':'كلماتي')+(p.placed&&v&&v===myCefr(p)?' ⭐':'')+'</button>').join('')+'</div>'+
+   '<p class="sub" style="margin:0;font-size:.82rem">'+(cur?esc(LVL_DESC[cur])+' · «اسمع واختار» و«طابق الصورة» و«كمّل الجملة» و«كروت الذاكرة» هتجيب كلمات وجمل من المستوى ده':'الألعاب بتستخدم الكلمات اللي اتعلمتها في الدروس')+(p.placed?' · ⭐ = مستواك من الاختبار':'')+'</p></div>';
+}
+
 /* ============================================================
    Standalone runtime (works on any static host, no Claude login)
    - downloads: plain browser download
