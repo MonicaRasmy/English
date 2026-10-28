@@ -2064,8 +2064,12 @@ function pickCats(level,n){
   S.catSeen=recent.concat(out.map(c=>c.id)).slice(-24);save();return out;
 }
 function ptTarget(cat){const L=PT&&PT.level;return cat.w.map((w,i)=>i).filter(i=>!L||cat.w[i].lv===L);}
+function triviaLevelSeg(cur,act,k,game){
+  {const c=cur>3?3:cur;
+    return '<div><label style="font-weight:600;display:block;margin-bottom:6px">مستوى الأسئلة</label><div class="seg">'+T_LVL.map(o=>'<button class="'+(c===o[0]?'on':'')+'" data-act="'+act+'"'+(k?' data-k="'+k+'"':'')+' data-v="'+o[0]+'">'+o[1]+'</button>').join('')+'</div><p class="sub" style="margin:6px 0 0;font-size:.82rem">'+({1:'أشهر الأفلام والجمل — مناسب للصغيرين',2:'جمل وشخصيات معروفة',3:'جمل وتفاصيل للخبرا 🤓',0:'خليط من كل المستويات'})[c]+' · الجمل مسموعة 🔊 ومعاها الترجمة</p></div>';}
+}
 function levelSeg(cur,act,k,game){
-  if(typeof TRIVIA!=='undefined'&&TRIVIA[game])return '<p class="sub" style="margin:0">أسئلة أفلام وأغاني — مش محتاجة مستوى، وكل الأسئلة بالإنجليزي ومعاها الترجمة 🎬</p>';
+  if(typeof TRIVIA!=='undefined'&&TRIVIA[game])return triviaLevelSeg(cur,act,k,game);
   const opts=[[1,'A1 🌱'],[2,'A2'],[3,'B1'],[4,'B2'],[5,'C1'],[6,'C2 🌳'],[0,'الكل 🌍']];
   const info={1:'سهل — كلمات شائعة وقصيرة',2:'كلمات عادية من الحياة اليومية',3:'متوسط — كلمات أطول',4:'فوق المتوسط',5:'متقدم',6:'محترف — أصعب كلمات',0:'خليط من كل المستويات'};
   return '<div><label style="font-weight:600;display:block;margin-bottom:6px">مستوى الكلمات</label><div class="seg" style="grid-auto-flow:row;grid-template-columns:repeat(4,1fr)">'+opts.map(o=>'<button class="'+(cur===o[0]?'on':'')+'" data-act="'+act+'"'+(k?' data-k="'+k+'"':'')+' data-v="'+o[0]+'">'+o[1]+'</button>').join('')+'</div><p class="sub" style="margin:6px 0 0;font-size:.82rem">'+info[cur]+(game==='wl'?' · أي كلمة صح من مستوى تاني بتتحسب بونص ⭐':'')+' · الأسئلة مش بتتكرر</p></div>';
@@ -2222,7 +2226,7 @@ ACT.phint=()=>{
 };
 ACT.pqans=d=>{
   if(!PT||PT.phase!=='play'||!PT.q||PT.lock)return;const q=PT.q;const ok=d.v===q.e.en;
-  if(ok){PT.score++;PT.streak=(PT.streak||0)+1;if(PT.streak%3===0){PT.score++;}if(PT.streak===5)confetti();say(q.e.en);}else{PT.streak=0;if(!PT.missed.some(x=>x.en===q.e.en))PT.missed.push(q.e);}
+  if(ok){PT.score++;PT.streak=(PT.streak||0)+1;if(PT.streak%3===0){PT.score++;}if(PT.streak===5)confetti();say(TRIVIA[PT.game]?tSayFull(q.e):q.e.en);}else{PT.streak=0;if(!PT.missed.some(x=>x.en===q.e.en))PT.missed.push(q.e);}
   const b=$('#pqbox');
   if(b){
     PT.lock=true;
@@ -2563,6 +2567,7 @@ pickCats=function(level,n){
 };
 ptTarget=function(cat){return cat.w.map((w,i)=>i);};
 levelSeg=function(cur,act,k,game){
+  if(typeof TRIVIA!=='undefined'&&TRIVIA[game])return triviaLevelSeg(cur,act,k,game);
   const info={0:'خليط من كل المستويات',1:'A1 — مبتدئ',2:'A2 — أساسي',3:'B1 — متوسط',4:'B2 — فوق المتوسط',5:'C1 — متقدم',6:'C2 — متمكن'};
   return '<div><label style="font-weight:600;display:block;margin-bottom:6px">المستوى</label><div class="seg" style="grid-template-columns:repeat(4,1fr);grid-auto-flow:row">'+[1,2,3,4,5,6,0].map(v=>'<button class="'+(cur===v?'on':'')+'" data-act="'+act+'"'+(k?' data-k="'+k+'"':'')+' data-v="'+v+'">'+(v?CEFR[v]:'🌍 الكل')+'</button>').join('')+'</div><p class="sub" style="margin:6px 0 0;font-size:.82rem">'+info[cur]+(game==='pq'&&cur>2?' · سباق الصور كلماته أساسية، جرّبوا «المعنى الصح» أو «اسمع واكتب» للمستوى ده':'')+' · الأسئلة مش بتتكرر</p></div>';
 };
@@ -3002,6 +3007,21 @@ const TRIVIA={
    deck:()=>T_SONG.map(x=>({q:x[0],en:x[1],ar:x[2],e:x[4],f:x[3],hint:x[3]}))}
 };
 
+/* ---- trivia: difficulty (1 easy · 2 medium · 3 hard) and sound ---- */
+const T_EASY=new Set(['To infinity and beyond!','Just keep swimming.','Hakuna Matata! It means no worries.','Some people are worth melting for.','You’re welcome!','I am speed.','Magic mirror on the wall, who is the fairest one of all?','I’m a real boy!','Ohana means family. Family means nobody gets left behind.',
+ 'You’re a wizard, Harry.','I am Groot.','I am Iron Man.','No, I am your father.','How you doin’?','We were on a break!','Dobby is free!','With great power comes great responsibility.',
+ 'Daniel Radcliffe','Emma Watson','Rupert Grint','Tom Hanks (voice)','Tim Allen (voice)','Idina Menzel (voice)','Josh Gad (voice)','Dwayne Johnson (voice)','Johnny Depp','Tom Holland',
+ 'Hakuna ___','Let It ___','Do You Want to Build a ___?','Under the ___','A Whole New ___','You’ve Got a ___ in Me','You’re ___','Remember ___','Beauty and the ___',
+ 'Twinkle, twinkle, little ___','Row, row, row your ___','Old MacDonald had a ___','Baa, baa, black ___','Happy birthday to ___','Jingle bells, jingle bells, jingle all the ___','The wheels on the bus go round and ___','Head, shoulders, knees and ___','If you’re happy and you know it, clap your ___']);
+const T_HARD=new Set(['The past can hurt. But you can either run from it or learn from it.','No capes!','It’s called a hustle, sweetheart.','The flower that blooms in adversity is the most rare and beautiful of all.','Take her to the moon for me.','Seize your moment!','Yesterday is history, tomorrow is a mystery, but today is a gift.','Kitty!','Our fate lives within us. You only have to be brave enough to see it.',
+ 'After all this time? Always.','It does not do to dwell on dreams and forget to live.','Always winter and never Christmas.','Aslan is on the move.','Once a king or queen of Narnia, always a king or queen.','One does not simply walk into Mordor.','Even the smallest person can change the course of the future.','You will always remember this as the day you almost caught Captain Jack Sparrow!','I’m not great at the advice. Can I interest you in a sarcastic comment?','They don’t know that we know they know we know!','Welcome to the real world!',
+ 'Maggie Smith','Ralph Fiennes','Georgie Henley','Skandar Keynes','Tilda Swinton','James McAvoy','Viggo Mortensen',
+ 'I Just Can’t Wait to Be ___','Surface ___','Colors of the ___','Bibbidi-Bobbidi-___','The Bare ___','I See the ___','Almost ___','Try ___',
+ 'Hickory, dickory, dock. The mouse ran up the ___','Bohemian ___','Dancing ___','Here Comes the ___','Yellow ___','Hey ___','Billie ___','Someone Like ___','Rolling in the ___','Uptown ___','Viva la ___','Counting ___','See You ___','Blinding ___']);
+function tDiff(e){return T_EASY.has(e.q)?1:T_HARD.has(e.q)?3:2;}
+function tSayQ(e){return e.q.includes('___')?e.q.split('___')[0].replace(/[\s,]+$/,''):e.q;}
+function tSayFull(e){return e.q.includes('___')?e.q.replace('___',e.en):e.en;}
+const T_LVL=[[1,'سهل 🌱'],[2,'متوسط 🌿'],[3,'صعب 🌳'],[0,'الكل 🌍']];
 Object.keys(TRIVIA).forEach(k=>{GAMES[k]=[TRIVIA[k].e,TRIVIA[k].t,TRIVIA[k].s];});
 function confetti(){
   try{if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;}catch(e){}
@@ -3011,16 +3031,22 @@ function confetti(){
   document.body.appendChild(box);setTimeout(()=>box.remove(),4000);
 }
 const _deckForBase=deckFor;
-deckFor=function(game,level,need,seed){if(!TRIVIA[game])return _deckForBase(game,level,need,seed);const d=TRIVIA[game].deck();return seed?shuffleSeed(d,seed):shuffle(d);};
+deckFor=function(game,level,need,seed){
+  if(!TRIVIA[game])return _deckForBase(game,level,need,seed);
+  const all=TRIVIA[game].deck();const lv=level>3?3:level;
+  let d=lv?all.filter(e=>tDiff(e)===lv):all;
+  if(lv&&d.length<8)d=d.concat(all.filter(e=>Math.abs(tDiff(e)-lv)===1).slice(0,8-d.length));
+  return seed?shuffleSeed(d,seed):shuffle(d);
+};
 const _pqDealBase=pqDeal;
 pqDeal=function(){
   if(!TRIVIA[PT.game])return _pqDealBase();
   const d=PT.deck,q=PT.quota;let start=((PT.turn||0)*q)%Math.max(1,d.length);let slice=d.slice(start,start+q);
   if(slice.length<q)slice=slice.concat(d.slice(0,q-slice.length));
-  const answers=[...new Set(d.map(x=>x.en))];const arOfA=a=>(d.find(x=>x.en===a)||{}).ar||'';
+  const full=TRIVIA[PT.game].deck();const answers=[...new Set(full.map(x=>x.en))];const arOfA=a=>(full.find(x=>x.en===a)||{}).ar||'';
   PT.qs=slice.map((e,i)=>{
     const mix=(arr,k)=>PT.seed?shuffleSeed(arr,PT.seed*31+start+i*7+k):shuffle(arr);
-    const rest=answers.filter(a=>a!==e.en);const same=rest.filter(a=>d.some(x=>x.en===a&&x.f===e.f));
+    const rest=answers.filter(a=>a!==e.en);const same=rest.filter(a=>full.some(x=>x.en===a&&x.f===e.f));
     const dis=mix(same,1).slice(0,2);mix(rest.filter(a=>!dis.includes(a)),2).forEach(a=>{if(dis.length<3)dis.push(a);});
     return {e,opts:mix([e].concat(dis.map(a=>({en:a,ar:arOfA(a)}))),3)};
   });
@@ -3030,12 +3056,13 @@ const _pqDrawCoreBase=pqDrawCore;
 pqDrawCore=function(){
   if(!PT||!TRIVIA[PT.game])return _pqDrawCoreBase();
   const b=$('#pqbox');if(!b||!PT.q)return;const q=PT.q,T=TRIVIA[PT.game];
-  b.innerHTML='<p class="prompt center" style="margin:0 0 6px">'+T.p+'</p><div class="bubble" style="margin-bottom:18px"><div style="font-size:2rem;line-height:1">'+T.e+'</div><div class="mid en" style="font-size:1.45rem">'+esc(q.e.q)+'</div>'+(q.e.qa?'<div class="ar" style="font-size:.95rem">'+esc(q.e.qa)+'</div>':'')+(q.e.hint&&!q.e.hint.toLowerCase().includes(q.e.en.toLowerCase())?'<div style="margin-top:6px"><span class="tag en">'+esc(q.e.hint)+'</span></div>':'')+'</div>'+
+  b.innerHTML='<p class="prompt center" style="margin:0 0 6px">'+T.p+'</p><div class="bubble" style="margin-bottom:18px"><div style="font-size:2rem;line-height:1">'+T.e+'</div><div class="mid en" style="font-size:1.45rem">'+esc(q.e.q)+'</div>'+(q.e.qa?'<div class="ar" style="font-size:.95rem">'+esc(q.e.qa)+'</div>':'')+'<div class="row" style="justify-content:center;margin-top:8px"><button class="spk sm" data-act="say" data-t="'+esc(tSayQ(q.e))+'" style="flex:none" aria-label="اسمع">'+ic('spk')+'</button><button class="slowb" data-act="say" data-t="'+esc(tSayQ(q.e))+'" data-slow="1" style="flex:none;height:46px">🐢</button></div>'+(q.e.hint&&!q.e.hint.toLowerCase().includes(q.e.en.toLowerCase())?'<div style="margin-top:6px"><span class="tag en">'+esc(q.e.hint)+'</span></div>':'')+'</div>'+
    '<div class="opts two">'+q.opts.map(o=>'<button class="opt" data-act="pqans" data-v="'+esc(o.en)+'" style="flex-direction:column;justify-content:center;gap:2px"><span class="en" style="font-size:1.1rem;text-align:center">'+esc(o.en)+'</span>'+(o.ar?'<span class="mean">'+esc(o.ar)+'</span>':'')+'</button>').join('')+'</div>';
   const c=$('#pcount');if(c)c.innerHTML='✅ '+toAr(PT.score)+(PT.streak>=2?' · 🔥 '+toAr(PT.streak)+' ورا بعض':'');
+  setTimeout(()=>{if(PT&&PT.q===q)say(tSayQ(q.e));},250);
 };
 const _gameCardBase=gameCard;
-gameCard=function(){if(!TRIVIA[PT.game])return _gameCardBase();const g=GAMES[PT.game];return '<div class="card"><div class="vis sm" style="margin:0">'+g[0]+'</div><p class="h2" style="margin:4px 0 0">'+g[1]+'</p><p class="sub" style="margin:8px 0 0">'+g[2]+' · كل ٣ إجابات صح ورا بعض = نقطة بونص 🔥</p></div>';};
+gameCard=function(){if(!TRIVIA[PT.game])return _gameCardBase();const g=GAMES[PT.game];return '<div class="card"><div class="vis sm" style="margin:0">'+g[0]+'</div><p class="h2" style="margin:4px 0 0">'+g[1]+'</p><p class="sub" style="margin:8px 0 0">'+g[2]+' · المستوى: '+(({1:'سهل',2:'متوسط',3:'صعب'})[PT.level>3?3:PT.level]||'الكل')+' · كل ٣ إجابات صح ورا بعض = نقطة بونص 🔥</p></div>';};
 const _finishPartyBase=finishParty;finishParty=function(){_finishPartyBase();setTimeout(confetti,250);};
 const _olCountBase=olCount;olCount=function(){const first=!OL.counted;_olCountBase();if(first)setTimeout(confetti,250);};
 
