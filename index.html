@@ -440,6 +440,215 @@ function meanOf(en){
   const k=normEn(en);return MEAN_IX[k]||WORD_AR[k]||'';
 }
 LESSONS.forEach((Ls,li)=>Ls.items.forEach(it=>{it.lesson=li;ITEMS[it.id]=it;}));
+/* ============================================================
+   More lessons and conversations for each level (A1–C2)
+   ============================================================ */
+const LVL_LESSONS=[
+ {id:'c1a',cefr:1,emoji:'🛒',title:'في المحل',sub:'How much is it? · I’d like… · Here you are',
+  intro:'الجمل اللي هتحتاجها وإنت بتشتري أي حاجة.',
+  items:[
+   {id:'c1a1',en:'How much is it?',ar:'بكام ده؟',say:'هَاو مَتْش إز إت',emoji:'🏷️',key:'how much is it',tip:'أهم سؤال في أي محل.',scene:'بتسأل عن سعر تيشيرت'},
+   {id:'c1a2',en:'I’d like this one.',ar:'أنا عايز ده',arF:'أنا عايزة ده',say:'آيد لايك ذِس وَن',emoji:'👉',key:'id like this one',tip:'«I’d like» ألطف من «I want».',scene:'بتشاور على الحاجة اللي عجبتك'},
+   {id:'c1a3',en:'Do you have a bag?',ar:'معاك كيس؟',arF:'معاكي كيس؟',say:'دو يو هاف أ باج',emoji:'🛍️',key:'do you have a bag',tip:'«Do you have…?» بتسأل بيها عن أي حاجة.',scene:'عند الكاشير'},
+   {id:'c1a4',en:'Here you are.',ar:'اتفضل',arF:'اتفضلي',say:'هِير يو آر',emoji:'🤲',key:'here you are',tip:'بتقولها وإنت بتدّي حد حاجة.',scene:'بتدّي البياع الفلوس'}
+  ],
+  cloze:[{q:'How much ___ it?',ans:'is',opts:['is','are','do'],ar:'بكام ده؟',emoji:'🏷️',full:'How much is it?',item:'c1a1'},
+         {q:'Do you ___ a bag?',ans:'have',opts:['have','like','much'],ar:'معاك كيس؟',emoji:'🛍️',full:'Do you have a bag?',item:'c1a3'}]},
+ {id:'c1b',cefr:1,emoji:'⏰',title:'الوقت والمواعيد',sub:'What time is it? · See you tomorrow · I’m late',
+  intro:'إزاي تسأل عن الساعة وتتفق على ميعاد.',
+  items:[
+   {id:'c1b1',en:'What time is it?',ar:'الساعة كام؟',say:'وُوت تايم إز إت',emoji:'⏰',key:'what time is it',tip:'',scene:'بتسأل حد في الشارع'},
+   {id:'c1b2',en:'It’s three o’clock.',ar:'الساعة تلاتة',say:'إتس ثْري أوكلوك',emoji:'🕒',key:'its three oclock',tip:'«o’clock» بتيجي بعد الساعة لما تكون مظبوطة.',scene:'بترد على السؤال'},
+   {id:'c1b3',en:'See you tomorrow.',ar:'أشوفك بكرة',say:'سي يو تُمورو',emoji:'👋',key:'see you tomorrow',tip:'',scene:'آخر اليوم في الشغل'},
+   {id:'c1b4',en:'Sorry, I’m late.',ar:'آسف، اتأخرت',arF:'آسفة، اتأخرت',say:'سوري، آيم لِيت',emoji:'🏃',key:'sorry im late',tip:'',scene:'وصلت متأخر على ميعاد'}
+  ],
+  cloze:[{q:'What ___ is it?',ans:'time',opts:['time','day','late'],ar:'الساعة كام؟',emoji:'⏰',full:'What time is it?',item:'c1b1'},
+         {q:'See you ___.',ans:'tomorrow',opts:['tomorrow','late','time'],ar:'أشوفك بكرة',emoji:'👋',full:'See you tomorrow.',item:'c1b3'}]},
+ {id:'c2a',cefr:2,emoji:'🧭',title:'اسأل عن الطريق',sub:'Where is…? · Turn left · Go straight · Next to',
+  intro:'تسأل عن مكان وتفهم الاتجاهات.',
+  items:[
+   {id:'c2a1',en:'Excuse me, where is the station?',ar:'لو سمحت، المحطة فين؟',say:'إكسكيوز مي، وير إز ذا ستيشن',emoji:'🚉',key:'where is the station',tip:'ابدأ دايماً بـ «Excuse me».',scene:'تايه في مدينة جديدة'},
+   {id:'c2a2',en:'Go straight on.',ar:'امشي على طول',say:'جو ستريت أون',emoji:'⬆️',key:'go straight on',tip:'',scene:'حد بيوصفلك الطريق'},
+   {id:'c2a3',en:'Turn left at the corner.',ar:'خد شمال عند الناصية',arF:'خدي شمال عند الناصية',say:'تيرن ليفت آت ذا كورنر',emoji:'⬅️',key:'turn left at the corner',tip:'left = شمال، right = يمين.',scene:''},
+   {id:'c2a4',en:'It’s next to the bank.',ar:'جنب البنك',say:'إتس نيكست تو ذا بانك',emoji:'🏦',key:'its next to the bank',tip:'«next to» = جنب.',scene:''}
+  ],
+  cloze:[{q:'Turn ___ at the corner.',ans:'left',opts:['left','next','straight'],ar:'خد شمال عند الناصية',emoji:'⬅️',full:'Turn left at the corner.',item:'c2a3'},
+         {q:'It’s next ___ the bank.',ans:'to',opts:['to','at','on'],ar:'جنب البنك',emoji:'🏦',full:'It’s next to the bank.',item:'c2a4'}]},
+ {id:'c2b',cefr:2,emoji:'🩺',title:'عند الدكتور',sub:'I don’t feel well · It hurts here · Since yesterday',
+  intro:'توصف تعبك للدكتور أو الصيدلي.',
+  items:[
+   {id:'c2b1',en:'I don’t feel well.',ar:'أنا تعبان شوية',arF:'أنا تعبانة شوية',say:'آي دونت فيل ويل',emoji:'🤒',key:'i dont feel well',tip:'',scene:'أول ما تدخل للدكتور'},
+   {id:'c2b2',en:'It hurts here.',ar:'بتوجعني هنا',say:'إت هيرتس هير',emoji:'👇',key:'it hurts here',tip:'وشاور على المكان.',scene:''},
+   {id:'c2b3',en:'Since yesterday.',ar:'من امبارح',say:'سِنس يِسترداي',emoji:'📅',key:'since yesterday',tip:'«since» = من ساعة.',scene:'الدكتور سألك: من إمتى؟'},
+   {id:'c2b4',en:'Twice a day.',ar:'مرتين في اليوم',say:'تْوايس أ داي',emoji:'💊',key:'twice a day',tip:'once = مرة، twice = مرتين.',scene:'مواعيد الدوا'}
+  ],
+  cloze:[{q:'I don’t feel ___.',ans:'well',opts:['well','here','day'],ar:'أنا تعبان شوية',emoji:'🤒',full:'I don’t feel well.',item:'c2b1'},
+         {q:'___ a day.',ans:'Twice',opts:['Twice','Since','Here'],ar:'مرتين في اليوم',emoji:'💊',full:'Twice a day.',item:'c2b4'}]},
+ {id:'c3a',cefr:3,emoji:'💭',title:'قول رأيك',sub:'I think that… · In my opinion · I agree · I’m not sure',
+  intro:'جمل تعبّر بيها عن رأيك وتتفق أو تختلف بأدب.',
+  items:[
+   {id:'c3a1',en:'I think that’s a great idea.',ar:'أعتقد إنها فكرة حلوة جداً',say:'',emoji:'💡',key:'i think thats a great idea',tip:'«I think» أسهل طريقة تبدأ بيها رأيك.',scene:''},
+   {id:'c3a2',en:'In my opinion, it’s too expensive.',ar:'في رأيي، ده غالي أوي',say:'',emoji:'🗣️',key:'in my opinion its too expensive',tip:'«too» قبل الصفة = زيادة عن اللزوم.',scene:''},
+   {id:'c3a3',en:'I agree with you.',ar:'أنا متفق معاك',arF:'أنا متفقة معاك',say:'',emoji:'🤝',key:'i agree with you',tip:'',scene:''},
+   {id:'c3a4',en:'I’m not sure about that.',ar:'أنا مش متأكد من ده',arF:'أنا مش متأكدة من ده',say:'',emoji:'🤔',key:'im not sure about that',tip:'طريقة مؤدبة تقول بيها «مش موافق».',scene:''}
+  ],
+  cloze:[{q:'In my ___, it’s too expensive.',ans:'opinion',opts:['opinion','idea','agree'],ar:'في رأيي، ده غالي أوي',emoji:'🗣️',full:'In my opinion, it’s too expensive.',item:'c3a2'},
+         {q:'I ___ with you.',ans:'agree',opts:['agree','think','sure'],ar:'أنا متفق معاك',emoji:'🤝',full:'I agree with you.',item:'c3a3'}]},
+ {id:'c3b',cefr:3,emoji:'📸',title:'احكي عن الماضي',sub:'I used to… · When I was young · I’ve never…',
+  intro:'تحكي عن حاجات كنت بتعملها وتجارب عشتها.',
+  items:[
+   {id:'c3b1',en:'I used to play football.',ar:'كنت بلعب كورة',say:'',emoji:'⚽',key:'i used to play football',tip:'«used to» = كنت بعمل حاجة زمان وبطّلتها.',scene:''},
+   {id:'c3b2',en:'When I was young, we lived in Tanta.',ar:'وأنا صغير كنا عايشين في طنطا',arF:'وأنا صغيرة كنا عايشين في طنطا',say:'',emoji:'🏡',key:'when i was young we lived in tanta',tip:'',scene:''},
+   {id:'c3b3',en:'I’ve never been to Aswan.',ar:'عمري ما رحت أسوان',say:'',emoji:'🏜️',key:'ive never been to aswan',tip:'«I’ve never…» = عمري ما…',scene:''},
+   {id:'c3b4',en:'It reminds me of my childhood.',ar:'ده بيفكرني بطفولتي',say:'',emoji:'🧸',key:'it reminds me of my childhood',tip:'',scene:''}
+  ],
+  cloze:[{q:'I ___ to play football.',ans:'used',opts:['used','never','was'],ar:'كنت بلعب كورة',emoji:'⚽',full:'I used to play football.',item:'c3b1'},
+         {q:'I’ve ___ been to Aswan.',ans:'never',opts:['never','used','young'],ar:'عمري ما رحت أسوان',emoji:'🏜️',full:'I’ve never been to Aswan.',item:'c3b3'}]},
+ {id:'c4a',cefr:4,emoji:'⚖️',title:'النقاش بأدب',sub:'That’s a fair point, but… · I see what you mean · To be honest',
+  intro:'تختلف مع حد من غير ما تزعّله.',
+  items:[
+   {id:'c4a1',en:'That’s a fair point, but…',ar:'كلامك منطقي، بس…',say:'',emoji:'👍',key:'thats a fair point but',tip:'بتعترف برأيه الأول وبعدين تقول رأيك.',scene:''},
+   {id:'c4a2',en:'I see what you mean.',ar:'فاهم قصدك',arF:'فاهمة قصدك',say:'',emoji:'👀',key:'i see what you mean',tip:'«see» هنا معناها «أفهم» مش «أشوف».',scene:''},
+   {id:'c4a3',en:'To be honest, I’d rather stay home.',ar:'بصراحة، أفضّل أقعد في البيت',say:'',emoji:'🏠',key:'to be honest id rather stay home',tip:'«I’d rather» = أفضّل.',scene:''},
+   {id:'c4a4',en:'Let’s agree to disagree.',ar:'خلّينا نتفق إن كل واحد له رأيه',say:'',emoji:'🤝',key:'lets agree to disagree',tip:'بتنهي بيها نقاش بهدوء.',scene:''}
+  ],
+  cloze:[{q:'I see what you ___.',ans:'mean',opts:['mean','say','point'],ar:'فاهم قصدك',emoji:'👀',full:'I see what you mean.',item:'c4a2'},
+         {q:'To be ___, I’d rather stay home.',ans:'honest',opts:['honest','fair','rather'],ar:'بصراحة، أفضّل أقعد في البيت',emoji:'🏠',full:'To be honest, I’d rather stay home.',item:'c4a3'}]},
+ {id:'c4b',cefr:4,emoji:'💼',title:'إنجليزي الشغل',sub:'Could you clarify…? · I’ll get back to you · Looking forward to…',
+  intro:'جمل بتتقال كل يوم في الاجتماعات والإيميلات.',
+  items:[
+   {id:'c4b1',en:'Could you clarify that, please?',ar:'ممكن توضّح النقطة دي؟',arF:'ممكن توضّحي النقطة دي؟',say:'',emoji:'❓',key:'could you clarify that please',tip:'',scene:''},
+   {id:'c4b2',en:'I’ll get back to you tomorrow.',ar:'هرد عليك بكرة',say:'',emoji:'📨',key:'ill get back to you tomorrow',tip:'«get back to you» = أرجعلك بالرد.',scene:''},
+   {id:'c4b3',en:'Let’s schedule a meeting.',ar:'يلا نحدد ميعاد اجتماع',say:'',emoji:'🗓️',key:'lets schedule a meeting',tip:'',scene:''},
+   {id:'c4b4',en:'I’m looking forward to working with you.',ar:'متحمس أشتغل معاك',arF:'متحمسة أشتغل معاك',say:'',emoji:'🙌',key:'im looking forward to working with you',tip:'بعد «looking forward to» الفعل بياخد ing.',scene:''}
+  ],
+  cloze:[{q:'I’ll get ___ to you tomorrow.',ans:'back',opts:['back','forward','up'],ar:'هرد عليك بكرة',emoji:'📨',full:'I’ll get back to you tomorrow.',item:'c4b2'},
+         {q:'Let’s ___ a meeting.',ans:'schedule',opts:['schedule','clarify','forward'],ar:'يلا نحدد ميعاد اجتماع',emoji:'🗓️',full:'Let’s schedule a meeting.',item:'c4b3'}]},
+ {id:'c5a',cefr:5,emoji:'🔗',title:'ربط الأفكار',sub:'Having said that · On the other hand · It goes without saying',
+  intro:'كلمات بتخلّي كلامك مترابط ومقنع.',
+  items:[
+   {id:'c5a1',en:'It goes without saying that safety comes first.',ar:'طبعاً من غير ما نقول، الأمان أولاً',say:'',emoji:'🦺',key:'it goes without saying that safety comes first',tip:'',scene:''},
+   {id:'c5a2',en:'On the other hand, it saves a lot of time.',ar:'من ناحية تانية، بيوفّر وقت كتير',say:'',emoji:'⏳',key:'on the other hand it saves a lot of time',tip:'',scene:''},
+   {id:'c5a3',en:'Having said that, I still have doubts.',ar:'ومع ذلك، لسه عندي شكوك',say:'',emoji:'🤨',key:'having said that i still have doubts',tip:'«Having said that» = بعد اللي قلته ده…',scene:''},
+   {id:'c5a4',en:'That’s beside the point.',ar:'ده مش موضوعنا',say:'',emoji:'🎯',key:'thats beside the point',tip:'',scene:''}
+  ],
+  cloze:[{q:'On the other ___, it saves a lot of time.',ans:'hand',opts:['hand','side','point'],ar:'من ناحية تانية، بيوفّر وقت كتير',emoji:'⏳',full:'On the other hand, it saves a lot of time.',item:'c5a2'},
+         {q:'That’s ___ the point.',ans:'beside',opts:['beside','without','other'],ar:'ده مش موضوعنا',emoji:'🎯',full:'That’s beside the point.',item:'c5a4'}]},
+ {id:'c5b',cefr:5,emoji:'📧',title:'إيميل رسمي',sub:'I am writing to… · Please find attached · I would appreciate…',
+  intro:'إزاي تكتب إيميل رسمي محترم من أوله لآخره.',
+  items:[
+   {id:'c5b1',en:'I am writing to inquire about the position.',ar:'بكتب حضرتك عشان أستفسر عن الوظيفة',say:'',emoji:'✉️',key:'i am writing to inquire about the position',tip:'أول جملة في أي إيميل رسمي.',scene:''},
+   {id:'c5b2',en:'Please find attached my CV.',ar:'مرفق السي في بتاعي',say:'',emoji:'📎',key:'please find attached my cv',tip:'',scene:''},
+   {id:'c5b3',en:'I would appreciate it if you could reply soon.',ar:'هكون ممتن لو رديت قريب',arF:'هكون ممتنة لو رديت قريب',say:'',emoji:'🙏',key:'i would appreciate it if you could reply soon',tip:'',scene:''},
+   {id:'c5b4',en:'Kind regards,',ar:'مع خالص التحية،',say:'',emoji:'🖊️',key:'kind regards',tip:'بتختم بيها الإيميل قبل اسمك.',scene:''}
+  ],
+  cloze:[{q:'Please find ___ my CV.',ans:'attached',opts:['attached','writing','regards'],ar:'مرفق السي في بتاعي',emoji:'📎',full:'Please find attached my CV.',item:'c5b2'},
+         {q:'I would ___ it if you could reply soon.',ans:'appreciate',opts:['appreciate','inquire','attach'],ar:'هكون ممتن لو رديت قريب',emoji:'🙏',full:'I would appreciate it if you could reply soon.',item:'c5b3'}]},
+ {id:'c6a',cefr:6,emoji:'🎭',title:'تعبيرات اصطلاحية',sub:'Break the ice · Hit the nail on the head · A blessing in disguise',
+  intro:'تعبيرات بيستخدمها أهل اللغة ومعناها مش حرفي.',
+  items:[
+   {id:'c6a1',en:'Let’s break the ice.',ar:'يلا نكسر الجليد',say:'',emoji:'🧊',key:'lets break the ice',tip:'يعني نبدأ كلام ونخلّي الجو مريح.',scene:''},
+   {id:'c6a2',en:'You hit the nail on the head.',ar:'جبتها بالظبط',say:'',emoji:'🔨',key:'you hit the nail on the head',tip:'يعني قلت الكلام الصح بالظبط.',scene:''},
+   {id:'c6a3',en:'It was a blessing in disguise.',ar:'كانت نعمة في صورة نقمة',say:'',emoji:'🎁',key:'it was a blessing in disguise',tip:'حاجة شكلها وحش وطلعت كويسة.',scene:''},
+   {id:'c6a4',en:'Don’t bite off more than you can chew.',ar:'متحمّلش نفسك فوق طاقتك',say:'',emoji:'🍔',key:'dont bite off more than you can chew',tip:'',scene:''}
+  ],
+  cloze:[{q:'Let’s break the ___.',ans:'ice',opts:['ice','nail','head'],ar:'يلا نكسر الجليد',emoji:'🧊',full:'Let’s break the ice.',item:'c6a1'},
+         {q:'It was a blessing in ___.',ans:'disguise',opts:['disguise','head','chew'],ar:'كانت نعمة في صورة نقمة',emoji:'🎁',full:'It was a blessing in disguise.',item:'c6a3'}]},
+ {id:'c6b',cefr:6,emoji:'🎤',title:'فن الإقناع',sub:'The bottom line is… · Devil’s advocate · A double-edged sword',
+  intro:'تعبيرات للنقاش العميق والإقناع.',
+  items:[
+   {id:'c6b1',en:'The bottom line is that we need more time.',ar:'الخلاصة إننا محتاجين وقت أكتر',say:'',emoji:'📌',key:'the bottom line is that we need more time',tip:'',scene:''},
+   {id:'c6b2',en:'Let me play devil’s advocate.',ar:'خلّيني أتكلم من الناحية التانية',say:'',emoji:'😈',key:'let me play devils advocate',tip:'يعني هعارض عشان نشوف الفكرة من كل ناحية.',scene:''},
+   {id:'c6b3',en:'Technology is a double-edged sword.',ar:'التكنولوجيا سلاح ذو حدين',say:'',emoji:'⚔️',key:'technology is a double edged sword',tip:'',scene:''},
+   {id:'c6b4',en:'By and large, the plan worked.',ar:'عموماً، الخطة نجحت',say:'',emoji:'✅',key:'by and large the plan worked',tip:'«By and large» = في المجمل.',scene:''}
+  ],
+  cloze:[{q:'The bottom ___ is that we need more time.',ans:'line',opts:['line','sword','advocate'],ar:'الخلاصة إننا محتاجين وقت أكتر',emoji:'📌',full:'The bottom line is that we need more time.',item:'c6b1'},
+         {q:'By and ___, the plan worked.',ans:'large',opts:['large','line','double'],ar:'عموماً، الخطة نجحت',emoji:'✅',full:'By and large, the plan worked.',item:'c6b4'}]}
+];
+const MORE_D=[
+ {id:'x1',lv:2,emoji:'🛒',ar:'في السوبرماركت',en:'At the supermarket',other:'الكاشير',lines:[
+  {w:'o',c:[['Hello!','أهلاً!'],['Did you find','لقيت'],['everything?','كل حاجة؟']],ar:'أهلاً! لقيت كل حاجة؟'},
+  {w:'y',c:[['Yes, thank you.','أيوه، شكراً.'],['Where is the milk?','اللبن فين؟']],ar:'أيوه، شكراً. اللبن فين؟'},
+  {w:'o',c:[['It’s in aisle three,','في الممر التالت،'],['on the left.','على الشمال.']],ar:'في الممر التالت، على الشمال.'},
+  {w:'y',c:[['Thanks!','شكراً!'],['How much','بكام'],['is the total?','الحساب كله؟']],ar:'شكراً! الحساب كله بكام؟'},
+  {w:'o',c:[['It’s 150 pounds.','١٥٠ جنيه.'],['Cash or card?','كاش ولا فيزا؟']],ar:'١٥٠ جنيه. كاش ولا فيزا؟'},
+  {w:'y',c:[['Card,','فيزا،'],['please.','من فضلك.']],ar:'فيزا، من فضلك.'}]},
+ {id:'x2',lv:2,emoji:'🚌',ar:'بتسأل عن الأتوبيس',en:'Asking about the bus',other:'راجل في المحطة',lines:[
+  {w:'y',c:[['Excuse me,','لو سمحت،'],['does this bus','الأتوبيس ده'],['go to Tahrir?','بيروح التحرير؟']],ar:'لو سمحت، الأتوبيس ده بيروح التحرير؟'},
+  {w:'o',c:[['No, sorry.','لأ، آسف.'],['Take bus number 5.','اركب أتوبيس رقم ٥.']],ar:'لأ، آسف. اركب أتوبيس رقم ٥.'},
+  {w:'y',c:[['When does','إمتى'],['it come?','بييجي؟']],ar:'بييجي إمتى؟'},
+  {w:'o',c:[['Every ten minutes.','كل عشر دقايق.']],ar:'كل عشر دقايق.'},
+  {w:'y',c:[['Thank you','شكراً'],['very much!','جداً!']],ar:'شكراً جداً!'},
+  {w:'o',c:[['You’re welcome.','العفو.'],['Have a nice day!','يومك سعيد!']],ar:'العفو. يومك سعيد!'}]},
+ {id:'x3',lv:3,emoji:'💊',ar:'في الصيدلية',en:'At the pharmacy',other:'الصيدلي',lines:[
+  {w:'o',c:[['Good morning.','صباح الخير.'],['How can I help you?','أقدر أساعدك إزاي؟']],ar:'صباح الخير. أقدر أساعدك إزاي؟'},
+  {w:'y',c:[['I have a bad cold','عندي برد جامد'],['and a sore throat.','وزوري واجعني.']],ar:'عندي برد جامد وزوري واجعني.'},
+  {w:'o',c:[['How long','بقالك قد إيه'],['have you had it?','كده؟']],ar:'بقالك قد إيه كده؟'},
+  {w:'y',c:[['Since Monday.','من يوم الاتنين.']],ar:'من يوم الاتنين.'},
+  {w:'o',c:[['Take these tablets','خد الأقراص دي'],['twice a day','مرتين في اليوم'],['after meals.','بعد الأكل.']],ar:'خد الأقراص دي مرتين في اليوم بعد الأكل.'},
+  {w:'y',c:[['Thank you.','شكراً.'],['Should I see a doctor?','المفروض أروح لدكتور؟']],ar:'شكراً. المفروض أروح لدكتور؟',note:'«Should I…?» = المفروض أعمل…؟ بتطلب بيها نصيحة.'}]},
+ {id:'x4',lv:3,emoji:'🗺️',ar:'بتسأل عن الطريق',en:'Asking for directions',other:'ست في الشارع',lines:[
+  {w:'y',c:[['Excuse me,','لو سمحتي،'],['how can I get','أروح إزاي'],['to the museum?','للمتحف؟']],ar:'لو سمحتي، أروح المتحف إزاي؟'},
+  {w:'o',c:[['Go straight','امشي على طول'],['and turn right','وخد يمين'],['at the traffic lights.','عند الإشارة.']],ar:'امشي على طول وخد يمين عند الإشارة.'},
+  {w:'y',c:[['Is it far','هو بعيد'],['from here?','من هنا؟']],ar:'هو بعيد من هنا؟'},
+  {w:'o',c:[['No, it’s about','لأ، حوالي'],['a five-minute walk.','خمس دقايق مشي.']],ar:'لأ، حوالي خمس دقايق مشي.'},
+  {w:'y',c:[['Great!','حلو!'],['Thanks for your help.','شكراً على مساعدتك.']],ar:'حلو! شكراً على مساعدتك.'}]},
+ {id:'x5',lv:4,emoji:'☕',ar:'قابلت صاحب قديم',en:'Meeting an old friend',other:'صاحبك القديم',lines:[
+  {w:'o',c:[['No way!','مش معقول!'],['Is that you?','ده إنت؟'],['It’s been ages!','بقالنا كتير أوي!']],ar:'مش معقول! ده إنت؟ بقالنا كتير أوي!'},
+  {w:'y',c:[['I know!','فعلاً!'],['What have you been','كنت بتعمل'],['up to?','إيه؟']],ar:'فعلاً! كنت بتعمل إيه الفترة دي؟',note:'«What have you been up to?» = أخبارك إيه الفترة اللي فاتت.'},
+  {w:'o',c:[['I moved to Dubai','نقلت دبي'],['for work','عشان الشغل'],['two years ago.','من سنتين.']],ar:'نقلت دبي عشان الشغل من سنتين.'},
+  {w:'y',c:[['That’s amazing!','تحفة!'],['Do you like it there?','عاجباك هناك؟']],ar:'تحفة! عاجباك هناك؟'},
+  {w:'o',c:[['Yes, but I miss','أيوه، بس وحشني'],['the food here!','الأكل هنا!']],ar:'أيوه، بس وحشني الأكل هنا!'},
+  {w:'y',c:[['Let’s grab lunch','يلا نتغدى'],['before you leave.','قبل ما تسافر.']],ar:'يلا نتغدى سوا قبل ما تسافر.'}]},
+ {id:'x6',lv:4,emoji:'🏨',ar:'شكوى في الفندق',en:'A hotel complaint',other:'الاستقبال',lines:[
+  {w:'y',c:[['Hi, I’m in room 305.','أهلاً، أنا في أوضة ٣٠٥.'],['The air conditioning','التكييف'],['isn’t working.','مش شغال.']],ar:'أهلاً، أنا في أوضة ٣٠٥. التكييف مش شغال.'},
+  {w:'o',c:[['I’m so sorry','أنا آسف جداً'],['about that.','على كده.'],['I’ll send someone up.','هبعت حد يطلع.']],ar:'أنا آسف جداً على كده. هبعت حد يطلع.'},
+  {w:'y',c:[['Thank you.','شكراً.'],['Also, could I get','وكمان، ممكن آخد'],['an extra towel?','فوطة زيادة؟']],ar:'شكراً. وكمان، ممكن آخد فوطة زيادة؟'},
+  {w:'o',c:[['Of course.','طبعاً.'],['Anything else','أي حاجة تانية'],['I can do for you?','أقدر أعملها لك؟']],ar:'طبعاً. أي حاجة تانية أقدر أعملها لك؟'},
+  {w:'y',c:[['No, that’s all.','لأ، بس كده.'],['I appreciate it.','متشكر جداً.']],ar:'لأ، بس كده. متشكر جداً.'}]},
+ {id:'x7',lv:5,emoji:'📊',ar:'اجتماع شغل',en:'A work meeting',other:'المديرة',lines:[
+  {w:'o',c:[['Let’s get started.','يلا نبدأ.'],['Where are we','وصلنا لفين'],['with the project?','في المشروع؟']],ar:'يلا نبدأ. وصلنا لفين في المشروع؟'},
+  {w:'y',c:[['We’re on track,','إحنا ماشيين حسب الخطة،'],['but the design','بس التصميم'],['is a bit behind.','متأخر شوية.']],ar:'إحنا ماشيين حسب الخطة، بس التصميم متأخر شوية.'},
+  {w:'o',c:[['What’s causing','إيه سبب'],['the delay?','التأخير؟']],ar:'إيه سبب التأخير؟'},
+  {w:'y',c:[['We’re waiting','مستنيين'],['for feedback','رأي'],['from the client.','العميل.']],ar:'مستنيين رأي العميل.'},
+  {w:'o',c:[['Could you follow up','ممكن تتابع'],['with them today?','معاهم النهارده؟']],ar:'ممكن {تتابعي|تتابع} معاهم النهارده؟'},
+  {w:'y',c:[['Sure,','أكيد،'],['I’ll send them an email','هبعتلهم إيميل'],['right after this.','بعد الاجتماع على طول.']],ar:'أكيد، هبعتلهم إيميل بعد الاجتماع على طول.'}]},
+ {id:'x8',lv:5,emoji:'📱',ar:'نقاش عن السوشيال ميديا',en:'Debating social media',other:'زميلك',lines:[
+  {w:'o',c:[['Honestly,','بصراحة،'],['I think social media','أعتقد إن السوشيال ميديا'],['does more harm than good.','ضررها أكتر من نفعها.']],ar:'بصراحة، أعتقد إن السوشيال ميديا ضررها أكتر من نفعها.'},
+  {w:'y',c:[['I see your point,','فاهم وجهة نظرك،'],['but it helps people','بس بتساعد الناس'],['stay in touch.','يفضلوا على تواصل.']],ar:'فاهم وجهة نظرك، بس بتساعد الناس يفضلوا على تواصل.'},
+  {w:'o',c:[['True,','صح،'],['but people spend','بس الناس بتقضي'],['hours scrolling.','ساعات بتقلّب.']],ar:'صح، بس الناس بتقضي ساعات بتقلّب.'},
+  {w:'y',c:[['That depends on','ده يعتمد على'],['how you use it.','إنت بتستخدمها إزاي.']],ar:'ده يعتمد على إنت بتستخدمها إزاي.'},
+  {w:'o',c:[['Fair enough.','عندك حق.'],['Balance is key.','التوازن هو الأساس.']],ar:'عندك حق. التوازن هو الأساس.'}]},
+ {id:'x9',lv:6,emoji:'📞',ar:'خدمة العملاء: استرجاع فلوس',en:'Asking for a refund',other:'خدمة العملاء',lines:[
+  {w:'o',c:[['Thank you for calling.','شكراً لاتصالك.'],['How may I assist you?','أقدر أساعدك إزاي؟']],ar:'شكراً لاتصالك. أقدر أساعدك إزاي؟'},
+  {w:'y',c:[['I ordered a blender','طلبت خلاط'],['last week,','الأسبوع اللي فات،'],['but it arrived damaged.','بس وصل مكسور.']],ar:'طلبت خلاط الأسبوع اللي فات، بس وصل مكسور.'},
+  {w:'o',c:[['I apologize','بعتذر'],['for the inconvenience.','على الإزعاج.'],['Would you prefer a replacement?','تحب نبعتلك بداله؟']],ar:'بعتذر على الإزعاج. {تحبي|تحب} نبعتلك بداله؟'},
+  {w:'y',c:[['I’d rather','أفضّل'],['get a full refund,','آخد فلوسي كلها،'],['if that’s possible.','لو ينفع.']],ar:'أفضّل آخد فلوسي كلها، لو ينفع.'},
+  {w:'o',c:[['Certainly.','أكيد.'],['It will be processed','هتتنفذ'],['within five working days.','خلال خمس أيام شغل.']],ar:'أكيد. هتتنفذ خلال خمس أيام شغل.'},
+  {w:'y',c:[['Great.','تمام.'],['Could you confirm that','ممكن تأكدلي ده'],['by email?','على الإيميل؟']],ar:'تمام. ممكن تأكدلي ده على الإيميل؟'}]},
+ {id:'x10',lv:6,emoji:'🧑‍💼',ar:'مقابلة شغل',en:'A job interview',other:'المسؤول عن التوظيف',lines:[
+  {w:'o',c:[['Tell me a bit','احكيلي شوية'],['about yourself.','عن نفسك.']],ar:'احكيلي شوية عن نفسك.'},
+  {w:'y',c:[['I have eight years','عندي تمن سنين'],['of experience','خبرة'],['in sales.','في المبيعات.']],ar:'عندي تمن سنين خبرة في المبيعات.'},
+  {w:'o',c:[['What would you say','تفتكر إيه'],['is your greatest strength?','أكبر نقطة قوة عندك؟']],ar:'تفتكر إيه أكبر نقطة قوة عندك؟'},
+  {w:'y',c:[['I’m good at','أنا شاطر في'],['building relationships','بناء علاقات'],['with clients.','مع العملا.']],ar:'{أنا شاطرة|أنا شاطر} في بناء علاقات مع العملا.'},
+  {w:'o',c:[['Why do you want','ليه عايز'],['to join us?','تنضم لينا؟']],ar:'ليه {عايزة|عايز} {تنضمي|تنضم} لينا؟'},
+  {w:'y',c:[['I admire','أنا معجب'],['your company’s values,','بقيم شركتكم،'],['and I’m eager to grow.','ومتحمس أتطور.']],ar:'{أنا معجبة|أنا معجب} بقيم شركتكم، {ومتحمسة|ومتحمس} أتطور.'}]},
+ {id:'x11',lv:7,emoji:'🎓',ar:'نقاش عن التعليم أونلاين',en:'Online learning debate',other:'أستاذة جامعية',lines:[
+  {w:'o',c:[['Do you reckon','تفتكر'],['online learning','التعليم أونلاين'],['will ever replace classrooms?','هيحل محل الفصول في يوم؟']],ar:'{تفتكري|تفتكر} التعليم أونلاين هيحل محل الفصول في يوم؟'},
+  {w:'y',c:[['Not entirely.','مش بالكامل.'],['It’s convenient,','هو مريح،'],['but it lacks','بس ناقصه'],['the human touch.','اللمسة الإنسانية.']],ar:'مش بالكامل. هو مريح، بس ناقصه اللمسة الإنسانية.'},
+  {w:'o',c:[['Having said that,','ومع ذلك،'],['it’s made education','خلّى التعليم'],['far more accessible.','متاح أكتر بكتير.']],ar:'ومع ذلك، خلّى التعليم متاح أكتر بكتير.'},
+  {w:'y',c:[['Granted.','ماشي، معاكي حق.'],['Perhaps a blend of both','يمكن خليط من الاتنين'],['is the way forward.','هو الحل.']],ar:'ماشي، معاكي حق. يمكن خليط من الاتنين هو الحل.',note:'«Granted» = بعترف إن كلامك صح.'},
+  {w:'o',c:[['I couldn’t agree more.','متفقة معاك تماماً.']],ar:'متفقة معاك تماماً.',note:'«I couldn’t agree more» معناها موافق جداً، مش العكس!'}]},
+ {id:'x12',lv:7,emoji:'💰',ar:'التفاوض على المرتب',en:'Negotiating a salary',other:'مديرة الموارد البشرية',lines:[
+  {w:'o',c:[['We’d like to offer you','حابين نعرض عليك'],['the position.','الوظيفة.']],ar:'حابين نعرض عليك الوظيفة.'},
+  {w:'y',c:[['I’m thrilled,','أنا مبسوط جداً،'],['thank you.','شكراً.'],['Could we discuss','ممكن نتكلم في'],['the package?','المرتب والمزايا؟']],ar:'{أنا مبسوطة|أنا مبسوط} جداً، شكراً. ممكن نتكلم في المرتب والمزايا؟'},
+  {w:'o',c:[['Of course.','طبعاً.'],['What did you have in mind?','كان في بالك كام؟']],ar:'طبعاً. كان في بالك كام؟'},
+  {w:'y',c:[['Given my experience,','بالنظر لخبرتي،'],['I was hoping for','كنت متوقع'],['something closer to','حاجة أقرب لـ'],['the top of the range.','أعلى الحد.']],ar:'بالنظر لخبرتي، {كنت متوقعة|كنت متوقع} حاجة أقرب لأعلى الحد.'},
+  {w:'o',c:[['That might be','ممكن يكون ده'],['a bit of a stretch,','صعب شوية،'],['but let me see','بس خليني أشوف'],['what I can do.','أقدر أعمل إيه.']],ar:'ممكن يكون ده صعب شوية، بس خليني أشوف أقدر أعمل إيه.'},
+  {w:'y',c:[['I appreciate that.','متشكر على ده.'],['I’m flexible','أنا مرن'],['on the start date.','في ميعاد البداية.']],ar:'متشكر على ده. {أنا مرنة|أنا مرن} في ميعاد البداية.'}]}
+];
+const BASE_N=LESSONS.length;
+LVL_LESSONS.forEach(L=>{LESSONS.push(L);const li=LESSONS.length-1;L.items.forEach(it=>{it.lesson=li;ITEMS[it.id]=it;});});
 const TOTAL_WORDS=Object.keys(ITEMS).length;
 const FUTURE_WORLDS=[['🏠','بيتي وعيلتي'],['🛒','يلا نتسوّق'],['🍽️','أكل ومطاعم'],['✈️','السفر'],['💬','كلام كل يوم'],['🩺','صحة وطوارئ'],['📞','إنجليزي الحياة الحقيقية']];
 
@@ -651,9 +860,9 @@ function learnedIds(p){p=p||P();return Object.keys(ITEMS).filter(id=>p.words[id]
 function dueIds(p){p=p||P();const n=Date.now();return learnedIds(p).filter(id=>p.words[id].due<=n).sort((a,b)=>p.words[a].due-p.words[b].due);}
 function shakyIds(p){p=p||P();return learnedIds(p).filter(id=>{const w=p.words[id];return w.wrong>w.right||(w.wrong>0&&w.box<=1);});}
 function masteredCount(p){p=p||P();return learnedIds(p).filter(id=>p.words[id].box>=4).length;}
-function lessonsDone(p){p=p||P();return LESSONS.filter(l=>p.lessons[l.id]&&p.lessons[l.id].done).length;}
-function nextLessonIdx(p){p=p||P();for(let i=0;i<LESSONS.length;i++){if(!(p.lessons[LESSONS[i].id]&&p.lessons[LESSONS[i].id].done))return i;}return -1;}
-function unlocked(p,i){return i===0||!!p.unlockAll||!!(p.lessons[LESSONS[i-1].id]&&p.lessons[LESSONS[i-1].id].done);}
+function lessonsDone(p){p=p||P();return LESSONS.slice(0,BASE_N).filter(l=>p.lessons[l.id]&&p.lessons[l.id].done).length;}
+function nextLessonIdx(p){p=p||P();for(let i=0;i<BASE_N;i++){if(!(p.lessons[LESSONS[i].id]&&p.lessons[LESSONS[i].id].done))return i;}return -1;}
+function unlocked(p,i){return i===0||!!LESSONS[i].cefr||!!p.unlockAll||!!(p.lessons[LESSONS[i-1].id]&&p.lessons[LESSONS[i-1].id].done);}
 
 /* ---- achievements ---- */
 const ACH=[
@@ -678,7 +887,7 @@ const ACH=[
  {id:'proverb3',e:'📜',t:'٣ أمثال',d:'اتعلمنا ٣ أمثال',test:p=>Object.keys(p.proverbs||{}).length>=3},
  {id:'party1',e:'🎉',t:'لعب جماعي',d:'لعبنا لعبة جماعية مع العيلة',test:p=>(p.stats.party||0)>=1},
  {id:'party5',e:'🏆',t:'سهرة ألعاب',d:'٥ ألعاب جماعية',test:p=>(p.stats.party||0)>=5},
- {id:'world1',e:'🌍',t:'الدنيا الأولى',d:'خلّصنا كل دروس الدنيا الأولى',test:p=>lessonsDone(p)>=LESSONS.length}
+ {id:'world1',e:'🌍',t:'الدنيا الأولى',d:'خلّصنا كل دروس الدنيا الأولى',test:p=>lessonsDone(p)>=BASE_N}
 ];
 function checkAch(p){
   p=p||P();const got=[];
@@ -804,7 +1013,7 @@ function drawBanner(){
 window.addEventListener('online',drawBanner);window.addEventListener('offline',drawBanner);
 
 const TABS=[['learn','اتعلم','book'],['speak','اتكلم','mic'],['play','العب','game'],['review','راجع','refresh'],['progress','إنجازاتي','star']];
-const TABOF={party:'play',convos:'speak',proverbs:'speak',learn:'learn',speak:'speak',chat:'speak',scenarios:'speak',scenario:'speak',family:'speak',play:'play',detective:'play',review:'review',progress:'progress'};
+const TABOF={level:'learn',party:'play',convos:'speak',proverbs:'speak',learn:'learn',speak:'speak',chat:'speak',scenarios:'speak',scenario:'speak',family:'speak',play:'play',detective:'play',review:'review',progress:'progress'};
 function drawChrome(){
   const bare=['splash','welcome','onb','startchoice','test','partyplay','online'].includes(R.route);
   document.body.classList.toggle('bare',bare);
@@ -842,7 +1051,7 @@ VIEWS.welcome=()=>{
   const has=Object.keys(S.profiles).length>0;
   const btn=r=>{const p=S.profiles[r];const R_=ROLE[r];
     return '<button class="role '+((r==='mom'||r==='dad')?r:'kid')+'" data-act="role" data-r="'+r+'"><span class="e">'+R_.emoji+'</span>'+(p?esc(p.name||R_.label):R_.label)+
-      '<small>'+(p?'درس '+toAr(lessonsDone(p))+' من '+toAr(LESSONS.length):'ابدأ هنا')+'</small></button>';};
+      '<small>'+(p?'درس '+toAr(lessonsDone(p))+' من '+toAr(BASE_N):'ابدأ هنا')+'</small></button>';};
   return '<div class="stack" style="padding-top:8px">'+
     '<div class="mark"><span class="display">إنجليزي بالراحة</span><span class="en">English Bel Ra7a</span></div>'+
     (has?'<p class="h2 center">مين هيتعلم النهارده؟</p>':
@@ -914,8 +1123,8 @@ VIEWS.learn=()=>{
   const p=P();const done=lessonsDone(p);
   const lvc=lvCard(p);const lvTop=p.placed&&(p.level||0)>=1;
   return '<div class="stack">'+(lvTop?lvc:'')+
-   '<div class="card" style="background:var(--lav-soft);border-color:transparent"><div class="row"><span style="font-size:2.6rem;flex:none">🌱</span><div style="flex:1"><p class="h2" style="margin:0">الدنيا الأولى: كلماتي الأولى</p><p class="sub" style="margin:2px 0 8px">'+toAr(done)+' من '+toAr(LESSONS.length)+' دروس</p><div class="meter"><i style="width:'+(done/LESSONS.length*100)+'%"></i></div></div></div></div>'+
-   '<div class="grid2">'+LESSONS.map((L,i)=>{
+   '<div class="card" style="background:var(--lav-soft);border-color:transparent"><div class="row"><span style="font-size:2.6rem;flex:none">🌱</span><div style="flex:1"><p class="h2" style="margin:0">الدنيا الأولى: كلماتي الأولى</p><p class="sub" style="margin:2px 0 8px">'+toAr(done)+' من '+toAr(BASE_N)+' دروس</p><div class="meter"><i style="width:'+(done/BASE_N*100)+'%"></i></div></div></div></div>'+
+   '<div class="grid2">'+LESSONS.slice(0,BASE_N).map((L,i)=>{
       const st=p.lessons[L.id];const open=unlocked(p,i);const res=p.resume&&p.resume.lessonIdx===i;
       return '<button class="lrow '+(st&&st.done?'done':'')+'" '+(open?'data-act="openlesson" data-i="'+i+'"':'disabled aria-disabled="true"')+'>'+
         '<span class="num">'+(st&&st.done?ic('check').replace('<svg','<svg width="24" height="24"'):toAr(i+1))+'</span>'+
@@ -964,7 +1173,7 @@ VIEWS.progress=()=>{
     return '<div><div class="row" style="justify-content:space-between"><span style="flex:none;font-weight:600">'+label+'</span><span class="sub" style="flex:none">'+toAr(val)+' / '+toAr(next)+'</span></div><div class="meter" style="margin-top:6px"><i style="width:'+Math.min(100,val/next*100)+'%"></i></div></div>';};
   return '<div class="stack"><p class="h1" style="margin:4px 0 0">إنجازاتي ⭐</p>'+
    '<div class="card center stack"><p class="h2" style="margin:0">'+msg+'</p>'+(cd?'<p style="margin:0">'+T('إنتِ','إنت')+' دلوقتي '+cd+'</p>':'')+'</div>'+
-   levelCard(p)+'<div class="row"><div class="stat"><b>'+toAr(lessonsDone(p))+'/'+toAr(LESSONS.length)+'</b><span>دروس خلّصناها</span></div><div class="stat"><b>'+toAr(learned)+'</b><span>كلمة اتعلمناها</span></div><div class="stat"><b>'+toAr(masteredCount(p))+'</b><span>كلمة ثبتت</span></div></div>'+
+   levelCard(p)+'<div class="row"><div class="stat"><b>'+toAr(lessonsDone(p))+'/'+toAr(BASE_N)+'</b><span>دروس خلّصناها</span></div><div class="stat"><b>'+toAr(learned)+'</b><span>كلمة اتعلمناها</span></div><div class="stat"><b>'+toAr(masteredCount(p))+'</b><span>كلمة ثبتت</span></div></div>'+
    '<div class="card"><p class="h2" style="margin:0 0 10px">آخر ٧ أيام (بالدقايق)</p><div class="bars">'+days.map(x=>{const m=Math.round(x.sec/60);const h=Math.max(6,Math.min(78,x.sec/Math.max(goal,1)*78));return '<div class="col"><span class="m">'+(m?toAr(m):'')+'</span><div class="bar '+(x.sec>=goal?'hit':'')+'" style="height:'+h+'%"></div><span class="m">'+esc(x.l)+'</span></div>';}).join('')+'</div><p class="sub" style="margin:8px 0 0">اللون المرجاني = وصلنا هدف اليوم ('+toAr(p.mins)+' دقايق)</p></div>'+
    '<div class="card stack"><p class="h2" style="margin:0">محطات الاستماع والكلام</p>'+mile('👂 إجابات صح في الاستماع',lis,[10,25,50,100,200])+mile('🎤 مرات اتكلمنا بصوتنا',sp,[5,15,30,60,100])+'</div>'+
    '<div class="card"><p class="h2" style="margin:0 0 10px">الأوسمة</p><div class="ach">'+ACH.map(a=>'<div class="achc '+(p.ach[a.id]?'':'off')+'"><span class="e">'+a.e+'</span><div><div class="t">'+a.t+'</div><div class="s">'+a.d+'</div></div></div>').join('')+'</div></div></div>';
@@ -1169,7 +1378,7 @@ STEP.done=s=>{
    '<div class="chips" style="justify-content:center">'+L.items.map(i=>'<button class="chip" data-act="say" data-id="'+i.id+'"><span>'+i.emoji+'</span><span class="en">'+esc(i.en)+'</span></button>').join('')+'</div>'+
    (PL.newAch&&PL.newAch.length?'<div class="card">'+PL.newAch.map(a=>'<div class="row"><span style="font-size:2rem;flex:none">'+a.e+'</span><div style="flex:1;text-align:right"><b>وسام جديد: '+a.t+'</b><div class="sub">'+a.d+'</div></div></div>').join('')+'</div>':'')+
    '<p class="sub" style="margin:0">تقدمك اتحفظ. الكلمات دي هترجعلنا في المراجعة بالراحة.</p>'+
-   (ni>=0?'<button class="btn coral" data-act="openlesson" data-i="'+ni+'">الدرس الجاي: '+esc(LESSONS[ni].title)+'</button>':'<div class="fb good">خلّصنا الدنيا الأولى كلها! 🌍</div>')+
+   (L.cefr?lvNextBtn(p,L.cefr):ni>=0?'<button class="btn coral" data-act="openlesson" data-i="'+ni+'">الدرس الجاي: '+esc(LESSONS[ni].title)+'</button>':'<div class="fb good">خلّصنا الدنيا الأولى كلها! 🌍</div>')+
    '<button class="btn ghost" data-act="startreview" data-any="1">راجع الكلمات دلوقتي</button><button class="btn ghost" data-act="home">'+ic('house')+'الرئيسية</button></div>';
 };
 STEP.sum=s=>{
@@ -1467,7 +1676,7 @@ function teacherRules(){
   const learned=learnedIds(p).map(id=>ITEMS[id].en);
   const sc=CH.sc?SCENARIOS.find(x=>x.id===CH.sc):null;
   let t='You are "المدرس الصبور", a warm, patient English teacher inside a mobile app for adult Egyptian Arabic speakers who are absolute beginners (Pre-A1). The learner is '+(p.name||ROLE[S.current].label)+', a '+(p.kind==='kid'?(f?'girl':'boy')+' (a young family member)':(f?'woman':'man')+' of about 50')+' with little or no formal English. Address the learner in the '+(f?'feminine':'masculine')+' form in Arabic.\n'+
-  'Progress so far: '+done+' of '+LESSONS.length+' beginner lessons finished. English the learner has been taught: '+(learned.join('; ')||'nothing yet')+'.\n'+
+  'Progress so far: '+done+' of '+BASE_N+' beginner lessons finished. English the learner has been taught: '+(learned.join('; ')||'nothing yet')+'.\n'+
   'Placement estimate (CEFR): '+(p.placed?CEFR_NAME[p.level||0]:'not taken')+'. The learner already knows many single words but needs practice using them in full sentences and conversations.\n'+'Arabic support level: '+((done>=6||(p.level||0)>=5)?'LOW (one short Arabic sentence at most)':'HIGH (explain things in colloquial Egyptian Arabic)')+'.\n';
   if(sc)t+='ROLE-PLAY: Play the '+sc.en+' character ("'+sc.other+'") in the scene "'+sc.en+'". Stay in character, speak simple English (max 8 words), one line at a time, and begin the scene yourself. Use the "ar" field for a very short coaching note in Egyptian Arabic. Suggested lines for the learner: '+sc.lines.filter(l=>l.w==='y').map(l=>l.en).join(' | ')+'.\n';
   else t+=((p.level||0)>=5?'Chat naturally about everyday, work and opinion topics at the learner’s CEFR level; use vocabulary and grammar at that level and introduce one useful expression per turn.':'Chat topics: greetings, politeness, how are you, names, yes/no, numbers 1-10, letters A-E. Ask one very easy question at a time.')+' At most one new word per turn. Prefer getting the learner to say full sentences (3-6 words) with words she already knows, and after each reply, model a slightly longer version of her sentence.\n';
@@ -1771,7 +1980,7 @@ function testResult(){
   return '<div class="stack center" style="padding-top:12px"><div class="vis">'+(TS.lvl>=3?'🌟':TS.lvl>=1?'🌱':'🌤️')+'</div><p class="h1" style="margin:0">'+T('خلّصتي! 🎉','خلصت! 🎉')+'</p>'+
    '<div class="card"><p class="h2" style="margin:0">'+esc(gf(L.n))+'</p><p style="margin:8px 0 0">'+esc(gf(L.d))+'</p><p class="sub" style="margin:8px 0 0">'+esc(gf(L.plan))+'</p></div>'+
    (TS.lvl>=1?'<p class="sub" style="margin:0">الكلمات اللي عرفتيها هتظهر لك في المراجعة عشان نتأكد منها بالراحة.'.replace('عرفتيها',T('عرفتيها','عرفتها')).replace('لك',T('لك','لك'))+'</p>':'')+
-   (TS.lvl>=1?'<button class="btn coral" data-act="lvwords" data-lv="'+cefrPlay(TS.lvl)+'">📚 ابدأ كلمات مستواك ('+LVL_NAME[cefrPlay(TS.lvl)]+')</button>':'')+
+   (TS.lvl>=1?'<button class="btn coral" data-act="lvopen" data-lv="'+cefrPlay(TS.lvl)+'">📚 ابدأ مستواك ('+LVL_NAME[cefrPlay(TS.lvl)]+'): دروس ومحادثات وكلمات</button>':'')+
    (TS.lvl>=1&&nx?'<button class="btn blue" data-act="convo" data-id="'+nx.id+'">💬 ابدأ محادثة: '+esc(nx.ar)+'</button>':'<button class="btn coral" data-act="openlesson" data-i="0">🌱 ابدأ أول درس</button>')+
    '<button class="btn ghost" data-act="home">'+ic('house')+'الرئيسية</button></div>';
 }
@@ -2263,11 +2472,12 @@ const VOCAB_RAW=[
 /* ============================================================
    v6: CEFR A1–C2 · new games · better speech matching · share link
    ============================================================ */
+NEWD.push(...MORE_D);
 NEWD.forEach(d=>{DIALOGS.push(d);d.lines.forEach((l,i)=>{l.id=d.id+':'+i;l.en=lineEn(l);l.say=l.tts||l.en;SENT[l.id]=l;});});
 NEWPLACE.forEach(g=>PLACEMENT.push(g));
 const CEFR=['الكل','A1','A2','B1','B2','C1','C2'];
 const CEFR_NAME=['Pre-A1','Pre-A1+','A1','A1+','A2','B1','B2','C1','C2'];
-function cefrPlay(n){return [1,1,2,2,3,4,5,6,6][Math.max(0,Math.min(8,n||0))];}
+function cefrPlay(n){return [1,1,1,2,2,3,4,5,6][Math.max(0,Math.min(8,n||0))];}
 const CAT_CEFR={colors:1,numbers:1,family:1,body:1,fruits:1,animals:1,food:2,home:2,clothes:2,days:2,places:2,jobs:2};
 NEWCATS_RAW.forEach(c=>CATS.push({id:c[0],e:c[1],ar:c[2],en:c[3],cefr:c[4],w:c[5].map(s=>{const a=s.split('|');return {en:a[0],ar:a[1],e:'',alt:(a[2]||'').split(',').filter(Boolean),lv:3};})}));
 CATS.forEach(c=>{if(!c.cefr)c.cefr=CAT_CEFR[c.id]||2;});
@@ -2285,7 +2495,7 @@ LV.length=0;[
  {n:'C1 ✅ — مستوى متقدم',d:'بتستخدم{ي|} اللغة بمرونة في الشغل والنقاش.',plan:'الخطوة الجاية C2: تعبيرات نادرة ومفردات أكاديمية.'},
  {n:'C2 ✅ — متمكن{ة|}',d:'مستواك ممتاز! بتفهم{ي|} حتى التعبيرات الصعبة.',plan:'تحدي المرادفات والتعبيرات + المدرس الذكي.'}
 ].forEach(x=>LV.push(x));
-recLevel=function(p){return [1,1,2,3,4,5,6,7,7][Math.max(0,Math.min(8,p.level||0))];};
+recLevel=function(p){return [1,1,2,3,3,4,5,6,7][Math.max(0,Math.min(8,p.level||0))];};
 
 /* ---- placement test (now up to C2) ---- */
 VIEWS.test=()=>{
@@ -2528,7 +2738,7 @@ testResult=function(){
   return '<div class="stack center" style="padding-top:12px"><div class="vis">'+(TS.lvl>=6?'🏆':TS.lvl>=4?'🌟':TS.lvl>=1?'🌱':'🌤️')+'</div><p class="h1" style="margin:0">'+T('خلّصتي! 🎉','خلصت! 🎉')+'</p>'+
    '<div class="card"><p class="sub" style="margin:0">مستواك اللي عدّيته</p><p class="h2" style="margin:4px 0 0">'+esc(gf(L.n))+'</p><p style="margin:8px 0 0">'+esc(gf(L.d))+'</p><p class="sub" style="margin:8px 0 0">'+esc(gf(L.plan))+'</p></div>'+
    '<div class="card stack">'+rows+'</div>'+
-   (TS.lvl>=1?'<button class="btn coral" data-act="lvwords" data-lv="'+cefrPlay(TS.lvl)+'">📚 ابدأ كلمات مستواك ('+LVL_NAME[cefrPlay(TS.lvl)]+')</button>':'')+
+   (TS.lvl>=1?'<button class="btn coral" data-act="lvopen" data-lv="'+cefrPlay(TS.lvl)+'">📚 ابدأ مستواك ('+LVL_NAME[cefrPlay(TS.lvl)]+'): دروس ومحادثات وكلمات</button>':'')+
    (TS.lvl>=1&&nx?'<button class="btn blue" data-act="convo" data-id="'+nx.id+'">💬 ابدأ محادثة: '+esc(nx.ar)+'</button>':'<button class="btn coral" data-act="openlesson" data-i="0">🌱 ابدأ أول درس</button>')+
    '<button class="btn ghost" data-act="home">'+ic('house')+'الرئيسية</button></div>';
 };
@@ -2618,7 +2828,7 @@ function goBack(){
   if(r==='test'){stopSpeech();go('home');return;}
   if(r==='partyplay'){ACT.partyexit();return;}
   if(r==='online'){ACT.olexit();return;}
-  const map={scenario:'scenarios',scenarios:'speak',family:'speak',detective:'play',convos:'speak',proverbs:'speak'};
+  const map={level:'learn',scenario:'scenarios',scenarios:'speak',family:'speak',detective:'play',convos:'speak',proverbs:'speak'};
   if(map[r]){go(map[r]);return;}
   if(['learn','speak','play','review','progress'].includes(r))go('home');
 }
@@ -2681,16 +2891,48 @@ function startLevelWords(lv,origin){
   startPlayer({kind:'game',steps,origin:origin||'learn',again:true,againFn:()=>startLevelWords(lv,origin)});
 }
 ACT.lvwords=d=>startLevelWords(Number(d.lv),R.route==='home'?'home':'learn');
+function lvLessons(lv){return LESSONS.map((L,i)=>({L,i})).filter(x=>x.L.cefr===lv);}
+function lvConvos(lv){return DIALOGS.filter(d=>d.lv===lv+1);}
+function lvNext(p,lv){
+  const l=lvLessons(lv).find(x=>!(p.lessons[x.L.id]&&p.lessons[x.L.id].done));if(l)return {k:'lesson',i:l.i,t:l.L.title,e:l.L.emoji};
+  const d=lvConvos(lv).find(d=>!convoDone(p,d.id));if(d)return {k:'convo',id:d.id,t:d.ar,e:d.emoji};
+  return null;
+}
+function lvNextBtn(p,lv){
+  const n=lvNext(p,lv);
+  return (n?'<button class="btn coral" '+(n.k==='lesson'?'data-act="openlesson" data-i="'+n.i+'"':'data-act="convo" data-id="'+n.id+'"')+'>'+(n.k==='lesson'?'الدرس الجاي: ':'💬 المحادثة الجاية: ')+esc(n.t)+'</button>':'')+
+   '<button class="btn '+(n?'ghost':'coral')+'" data-act="lvopen" data-lv="'+lv+'">📚 كل محتوى '+LVL_NAME[lv]+'</button>';
+}
+ACT.lvopen=d=>go('level',{lv:Number(d.lv)});
+VIEWS.level=()=>{
+  const p=P();const lv=Number(R.params.lv)||myCefr(p)||1;
+  const ls=lvLessons(lv),ds=lvConvos(lv);const nW=lvWords(lv).length,kW=lvSeen(p,lv);
+  const lsDone=ls.filter(x=>p.lessons[x.L.id]&&p.lessons[x.L.id].done).length,dsDone=ds.filter(d=>convoDone(p,d.id)).length;
+  return '<div class="stack">'+backBtn('learn')+
+   '<div class="center"><div class="display" style="font-size:2.6rem;font-weight:800;color:var(--coral);direction:ltr">'+LVL_NAME[lv]+'</div><p class="h2" style="margin:0">'+esc(LVL_DESC[lv])+'</p>'+(p.placed&&lv===myCefr(p)?'<span class="tag">مناسب ليك</span>':'')+'</div>'+
+   '<div class="row"><div class="stat"><b>'+toAr(lsDone)+'/'+toAr(ls.length)+'</b><span>دروس</span></div><div class="stat"><b>'+toAr(dsDone)+'/'+toAr(ds.length)+'</b><span>محادثات</span></div><div class="stat"><b>'+toAr(kW)+'/'+toAr(nW)+'</b><span>كلمات</span></div></div>'+
+   '<p class="h2" style="margin:6px 0 0">📘 دروس</p>'+ls.map(x=>{const st=p.lessons[x.L.id];const res=p.resume&&p.resume.lessonIdx===x.i;
+     return '<button class="lrow '+(st&&st.done?'done':'')+'" data-act="openlesson" data-i="'+x.i+'"><span class="num">'+(st&&st.done?ic('check'):x.L.emoji)+'</span><span style="flex:1"><span class="t">'+esc(x.L.title)+'</span><br><span class="s en" style="direction:ltr;font-size:.8rem">'+esc(x.L.sub)+'</span></span>'+(res?'<span class="tag">كمّل</span>':st&&st.done?'<span class="s">'+'⭐'.repeat(st.stars||2)+'</span>':'')+'</button>';}).join('')+
+   '<p class="h2" style="margin:6px 0 0">💬 محادثات</p>'+ds.map(d=>'<button class="tile" data-act="convo" data-id="'+d.id+'"><span class="em">'+d.emoji+'</span><span style="flex:1"><span class="t">'+esc(d.ar)+'</span><br><span class="s en" style="direction:ltr">'+esc(d.en)+'</span></span>'+(convoDone(p,d.id)?'<span style="font-size:1.4rem">✅</span>':'')+'</button>').join('')+
+   '<p class="h2" style="margin:6px 0 0">🔤 كلمات</p><button class="tile a" data-act="lvwords" data-lv="'+lv+'"><span class="em">📚</span><span><span class="t">'+(kW<nW?'اتعلم ٥ كلمات جديدة':'راجع كلمات المستوى')+'</span><br><span class="s">'+toAr(kW)+' من '+toAr(nW)+' كلمة</span></span></button>'+
+   '<div class="row">'+(lv>1?'<button class="btn ghost small" data-act="lvopen" data-lv="'+(lv-1)+'">→ '+LVL_NAME[lv-1]+'</button>':'')+(lv<6?'<button class="btn ghost small" data-act="lvopen" data-lv="'+(lv+1)+'">'+LVL_NAME[lv+1]+' ←</button>':'')+'</div></div>';
+};
 function lvTile(p){
+  const lv0=myCefr(p);const n0=lvNext(p,lv0);
+  if(n0)return '<button class="tile a" '+(n0.k==='lesson'?'data-act="openlesson" data-i="'+n0.i+'"':'data-act="convo" data-id="'+n0.id+'"')+'><span class="em">'+n0.e+'</span><span><span class="t">'+(n0.k==='lesson'?'درس مستواك · ':'محادثة مستواك · ')+'<span class="en">'+LVL_NAME[lv0]+'</span></span><br><span class="s">'+esc(n0.t)+'</span></span></button>'+lvWordsTile(p);
+  return lvWordsTile(p);
+}
+function lvWordsTile(p){
   const lv=myCefr(p);const left=lvWords(lv).length-lvSeen(p,lv);const nxt=Math.min(6,lv+1);
   if(left<=0&&lv<6)return '<button class="tile a" data-act="lvwords" data-lv="'+nxt+'"><span class="em">🚀</span><span><span class="t">خلّصت '+LVL_NAME[lv]+'! نبدأ '+LVL_NAME[nxt]+'</span><br><span class="s">'+esc(LVL_DESC[nxt])+'</span></span></button>';
-  return '<button class="tile a" data-act="lvwords" data-lv="'+lv+'"><span class="em">📚</span><span><span class="t">كلمات مستواك · '+LVL_NAME[lv]+'</span><br><span class="s">'+(left>0?wordsAr(left)+' جديدة مستنياك · ٥ كل مرة':'خلّصتهم كلهم — مراجعة')+'</span></span></button>';
+  return '<button class="tile a" data-act="lvwords" data-lv="'+lv+'"><span class="em">📚</span><span><span class="t">كلمات مستواك · <span class="en">'+LVL_NAME[lv]+'</span></span><br><span class="s">'+(left>0?wordsAr(left)+' جديدة مستنياك · ٥ كل مرة':'خلّصتهم كلهم — مراجعة')+'</span></span></button>';
 }
 function lvCard(p){
   const mine=myCefr(p);
-  return '<div class="card stack"><div><p class="h2" style="margin:0">كلمات حسب المستوى 📚</p><p class="sub" style="margin:2px 0 0">'+(p.placed?'على حسب الاختبار، المناسب ليك هو <b class="en">'+LVL_NAME[mine]+'</b> — وتقدر تختار أي مستوى':T('اعملي اختبار المستوى عشان نقولك تبدأي منين — أو اختاري بنفسك','اعمل اختبار المستوى عشان نقولك تبدأ منين — أو اختار بنفسك'))+'</p></div>'+
+  return '<div class="card stack"><div><p class="h2" style="margin:0">دروس ومحادثات حسب المستوى 📚</p><p class="sub" style="margin:2px 0 0">'+(p.placed?'على حسب الاختبار، المناسب ليك هو <b class="en">'+LVL_NAME[mine]+'</b> — وتقدر تختار أي مستوى':T('اعملي اختبار المستوى عشان نقولك تبدأي منين — أو اختاري بنفسك','اعمل اختبار المستوى عشان نقولك تبدأ منين — أو اختار بنفسك'))+'</p></div>'+
    [1,2,3,4,5,6].map(lv=>{const n=lvWords(lv).length,k=lvSeen(p,lv);
-     return '<button class="lrow '+(k>=n?'done':'')+'" data-act="lvwords" data-lv="'+lv+'"><span class="num en" style="font-size:1rem">'+LVL_NAME[lv]+'</span><span style="flex:1"><span class="t">'+esc(LVL_DESC[lv])+'</span><br><span class="s">'+toAr(k)+' من '+toAr(n)+' كلمة</span></span>'+(p.placed&&lv===mine?'<span class="tag">مناسب ليك</span>':'')+'</button>';}).join('')+'</div>';
+     const ls=lvLessons(lv),ds=lvConvos(lv);const ld=ls.filter(x=>p.lessons[x.L.id]&&p.lessons[x.L.id].done).length,dd=ds.filter(d=>convoDone(p,d.id)).length;
+     return '<button class="lrow '+(k>=n&&ld>=ls.length&&dd>=ds.length?'done':'')+'" data-act="lvopen" data-lv="'+lv+'"><span class="num en" style="font-size:1rem">'+LVL_NAME[lv]+'</span><span style="flex:1"><span class="t">'+esc(LVL_DESC[lv])+'</span><br><span class="s">'+toAr(ld)+'/'+toAr(ls.length)+' دروس · '+toAr(dd)+'/'+toAr(ds.length)+' محادثات · '+toAr(k)+'/'+toAr(n)+' كلمة</span></span>'+(p.placed&&lv===mine?'<span class="tag">مناسب ليك</span>':'')+'</button>';}).join('')+'</div>';
 }
 function clozeForLevel(lv){
   let ds=DIALOGS.filter(d=>d.lv===lv+1);
