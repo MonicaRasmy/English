@@ -925,6 +925,12 @@ function bestEn(){
 function arVoice(){const all=TTS.voices.filter(v=>/^ar/i.test(v.lang));return all.find(v=>/ar[-_]EG/i.test(v.lang))||all[0]||null;}
 let AUD=null;
 function audioData(){if(AUD)return AUD;try{AUD=JSON.parse(document.getElementById('audio-data').textContent);}catch(e){AUD={};}return AUD;}
+/* extra clips (level lessons, conversations, words) live in a separate file so the page opens as fast as before */
+(function loadMoreAudio(){
+  if(!/^https?:/.test(location.protocol))return;
+  const get=()=>fetch('audio-more.json',{cache:'force-cache'}).then(r=>r.ok?r.json():{}).then(m=>{Object.assign(audioData(),m);}).catch(()=>{});
+  if(document.readyState==='complete')setTimeout(get,1500);else window.addEventListener('load',()=>setTimeout(get,1500));
+})();
 const player=new Audio();player.preload='auto';
 function clipKey(text,o){const r=(o&&o.rate)||S.settings.rate||.85;return text+'|'+(r<0.7?'s':'n');}
 let blockedT=0;
@@ -2059,6 +2065,7 @@ function pickCats(level,n){
 }
 function ptTarget(cat){const L=PT&&PT.level;return cat.w.map((w,i)=>i).filter(i=>!L||cat.w[i].lv===L);}
 function levelSeg(cur,act,k,game){
+  if(typeof TRIVIA!=='undefined'&&TRIVIA[game])return '<p class="sub" style="margin:0">أسئلة أفلام وأغاني — مش محتاجة مستوى، وكل الأسئلة بالإنجليزي ومعاها الترجمة 🎬</p>';
   const opts=[[1,'A1 🌱'],[2,'A2'],[3,'B1'],[4,'B2'],[5,'C1'],[6,'C2 🌳'],[0,'الكل 🌍']];
   const info={1:'سهل — كلمات شائعة وقصيرة',2:'كلمات عادية من الحياة اليومية',3:'متوسط — كلمات أطول',4:'فوق المتوسط',5:'متقدم',6:'محترف — أصعب كلمات',0:'خليط من كل المستويات'};
   return '<div><label style="font-weight:600;display:block;margin-bottom:6px">مستوى الكلمات</label><div class="seg" style="grid-auto-flow:row;grid-template-columns:repeat(4,1fr)">'+opts.map(o=>'<button class="'+(cur===o[0]?'on':'')+'" data-act="'+act+'"'+(k?' data-k="'+k+'"':'')+' data-v="'+o[0]+'">'+o[1]+'</button>').join('')+'</div><p class="sub" style="margin:6px 0 0;font-size:.82rem">'+info[cur]+(game==='wl'?' · أي كلمة صح من مستوى تاني بتتحسب بونص ⭐':'')+' · الأسئلة مش بتتكرر</p></div>';
@@ -2090,7 +2097,8 @@ VIEWS.party=()=>{
      gm('wl','⌨️','اكتب أكتر كلمات','فئة (فواكه، حيوانات…) واكتبوا أو قولوا أكتر عدد كلمات قبل ما الوقت يخلص')+
      gm('pq','🖼️','سباق الصور','صورة وأربع اختيارات — مناسبة لـ A1–A2')+
      gm('mm','🧩','المعنى الصح','كلمة أو تعبير إنجليزي واختاروا معناه بالعربي — من A1 لحد C2')+
-     gm('sb','🐝','اسمع واكتب (Spelling)','تسمعوا الكلمة وتكتبوها صح — من A1 لحد C2')+'</div>'+
+     gm('sb','🐝','اسمع واكتب (Spelling)','تسمعوا الكلمة وتكتبوها صح — من A1 لحد C2')+
+     '<p class="h2" style="margin:10px 0 0">🎬 أفلام وكرتون وأغاني</p>'+Object.keys(TRIVIA).map(k=>gm(k,TRIVIA[k].e,TRIVIA[k].t,TRIVIA[k].s)).join('')+'</div>'+
    '<div><label style="font-weight:600;display:block;margin-bottom:6px">وقت كل دور</label><div class="seg">'+[45,60,90].map(t=>'<button class="'+(PS.time===t?'on':'')+'" data-act="ptime" data-v="'+t+'">'+toAr(t)+' ثانية</button>').join('')+'</div></div>'+
    '<div><label style="font-weight:600;display:block;margin-bottom:6px">عدد الجولات</label><div class="seg">'+[1,2,3].map(t=>'<button class="'+(PS.rounds===t?'on':'')+'" data-act="prounds" data-v="'+t+'">'+toAr(t)+'</button>').join('')+'</div></div>'+
    levelSeg(PS.level,'plevel',null,PS.game)+'<button class="btn coral" data-act="pstart" '+((PS.sel.length+PS.guests.length)?'':'disabled')+'>يلا نلعب 🎉</button></div>';
@@ -2214,7 +2222,7 @@ ACT.phint=()=>{
 };
 ACT.pqans=d=>{
   if(!PT||PT.phase!=='play'||!PT.q||PT.lock)return;const q=PT.q;const ok=d.v===q.e.en;
-  if(ok){PT.score++;say(q.e.en);}else{if(!PT.missed.some(x=>x.en===q.e.en))PT.missed.push(q.e);}
+  if(ok){PT.score++;PT.streak=(PT.streak||0)+1;if(PT.streak%3===0){PT.score++;}if(PT.streak===5)confetti();say(q.e.en);}else{PT.streak=0;if(!PT.missed.some(x=>x.en===q.e.en))PT.missed.push(q.e);}
   const b=$('#pqbox');
   if(b){
     PT.lock=true;
@@ -2225,7 +2233,7 @@ ACT.pqans=d=>{
       if(PT.game==='pq'&&o&&(o.ar||meanOf(v)))el.insertAdjacentHTML('beforeend','<span class="mean">'+esc(o.ar||meanOf(v))+'</span>');
       if(PT.game==='mm')el.insertAdjacentHTML('beforeend','<span class="mean en" style="direction:ltr">'+esc(v)+'</span>');
     });
-    b.insertAdjacentHTML('beforeend','<div class="fb '+(ok?'good':'bad')+'" style="margin-top:10px">'+(ok?'✅ صح!':'❌ غلط — الصح: <span class="en">'+esc(q.e.en)+'</span>'+(q.e.ar?' = '+esc(q.e.ar):''))+'</div>');
+    b.insertAdjacentHTML('beforeend','<div class="fb '+(ok?'good':'bad')+'" style="margin-top:10px">'+(ok?'✅ صح!'+(PT.streak>=2?' 🔥 '+toAr(PT.streak)+' ورا بعض'+(PT.streak%3===0?' — نقطة بونص! +١':''):''):'❌ غلط — الصح: <span class="en">'+esc(q.e.en)+'</span>'+(q.e.ar?' = '+esc(q.e.ar):''))+'</div>');
     if(PT.game==='pq'||PT.game==='mm')b.querySelectorAll('.opt').forEach(el=>{el.style.flexDirection='column';});
     if(PT.online)olPush();
   }
@@ -2361,7 +2369,7 @@ VIEWS.online=()=>{
   return wrap(conn+'<div class="card center stack"><p class="sub" style="margin:0">كود الغرفة — قوله للعيلة</p><div class="display" style="font-size:3rem;font-weight:800;letter-spacing:.25em;direction:ltr;color:var(--coral)">'+esc(OL.code.toUpperCase())+'</div><button class="btn lav small" data-act="olshare" style="width:auto;margin:0 auto">📤 ابعت لينك الغرفة</button>'+(OL.showLink?'<div class="sub" style="direction:ltr;user-select:all;-webkit-user-select:all;word-break:break-all;background:var(--lav-soft);border-radius:12px;padding:8px">'+esc(olLink())+'</div>':'')+'<p class="sub" style="margin:0;font-size:.78rem">اللي يفتح اللينك يكتب اسمه ويدخل على طول. أو يدخل بالكود من: العب ← العب مع العيلة ← «كل واحد على موبايله»</p></div>'+
    '<div class="card stack"><p class="h2" style="margin:0">اللي في الغرفة ('+toAr(ps.length)+')</p>'+ps.map(p=>'<div class="ln '+(p.isMe?'you':'')+'"><span style="font-size:1.6rem">'+esc(olSafe(p.presence.e||'🙂',8))+'</span><div style="flex:1"><b>'+esc(olSafe(p.presence.n,16))+'</b>'+(host&&p.peer===host.peer?' <span class="tag">المسؤول 👑</span>':'')+(p.isMe?' <span class="sub">(إنت)</span>':'')+'</div></div>').join('')+'</div>'+
    (OL.late?'<div class="fb try">فيه جولة شغالة دلوقتي — هتنضم في الجولة الجاية.</div>':'')+
-   (isHost?'<div class="stack"><p class="h2" style="margin:0">العبوا إيه؟</p><div class="seg" style="grid-template-columns:1fr 1fr;grid-auto-flow:row">'+['wl','pq','mm','sb'].map(gk=>'<button class="'+(c.game===gk?'on':'')+'" data-act="olcfg" data-k="game" data-v="'+gk+'">'+GAMES[gk][0]+' '+GAMES[gk][1]+'</button>').join('')+'</div>'+
+   (isHost?'<div class="stack"><p class="h2" style="margin:0">العبوا إيه؟</p><div class="seg" style="grid-template-columns:1fr 1fr;grid-auto-flow:row">'+['wl','pq','mm','sb'].concat(Object.keys(TRIVIA)).map(gk=>'<button class="'+(c.game===gk?'on':'')+'" data-act="olcfg" data-k="game" data-v="'+gk+'">'+GAMES[gk][0]+' '+GAMES[gk][1]+'</button>').join('')+'</div>'+
      '<div class="seg">'+[45,60,90].map(t=>'<button class="'+(c.time===t?'on':'')+'" data-act="olcfg" data-k="time" data-v="'+t+'">'+toAr(t)+' ثانية</button>').join('')+'</div>'+
      '<div class="seg">'+[1,2,3].map(t=>'<button class="'+(c.rounds===t?'on':'')+'" data-act="olcfg" data-k="rounds" data-v="'+t+'">'+toAr(t)+' جولة</button>').join('')+'</div>'+levelSeg(c.level,'olcfg','level',c.game)+
      '<button class="btn coral" data-act="olstart" '+(OL.conn?'':'disabled')+'>يلا نبدأ 🎉</button></div>':'<div class="card center">مستنيين '+esc(olSafe(host&&host.presence.n,16))+' يبدأ اللعبة…</div>'));
@@ -2859,6 +2867,178 @@ document.addEventListener('keydown',e=>{
   if(best){e.preventDefault();best.focus();try{best.scrollIntoView({block:'nearest'});}catch(err){}}
   else if(dir[0])e.preventDefault();
 });
+/* ============================================================
+   Trivia sections for the family games (movies, cartoons, songs)
+   q: what is shown · a: right answer · ar: answer in Arabic
+   qa: the quote in Arabic · f: film (used for close distractors)
+   ============================================================ */
+const T_CARTOON=[
+ ['To infinity and beyond!','الى ما لا نهاية وأبعد!','Toy Story','حكاية لعبة','Buzz Lightyear','باز يطير','🚀'],
+ ['There’s a snake in my boot!','فيه تعبان في جزمتي!','Toy Story','حكاية لعبة','Woody','وودي','🤠'],
+ ['Just keep swimming.','فضّل اعوم وخلاص.','Finding Nemo','البحث عن نيمو','Dory','دوري','🐟'],
+ ['Fish are friends, not food.','السمك أصحاب، مش أكل.','Finding Nemo','البحث عن نيمو','Bruce','بروس (القرش)','🦈'],
+ ['Hakuna Matata! It means no worries.','هاكونا ماتاتا! يعني متشيلش هم.','The Lion King','الأسد الملك','Timon','تيمون','🐗'],
+ ['Remember who you are.','افتكر إنت مين.','The Lion King','الأسد الملك','Mufasa','موفاسا','🦁'],
+ ['The past can hurt. But you can either run from it or learn from it.','الماضي ممكن يوجع، بس يا تهرب منه يا تتعلم منه.','The Lion King','الأسد الملك','Rafiki','رفيقي','🐒'],
+ ['Some people are worth melting for.','فيه ناس تستاهل إني أدوب عشانهم.','Frozen','ملكة الثلج','Olaf','أولاف','⛄'],
+ ['Ohana means family. Family means nobody gets left behind.','أوهانا يعني العيلة، والعيلة يعني محدش يتساب لوحده.','Lilo & Stitch','ليلو وستيتش','Lilo','ليلو','👽'],
+ ['Squirrel!','سنجاب!','Up','فوق','Dug','داج (الكلب)','🐕'],
+ ['I am speed.','أنا السرعة.','Cars','سيارات','Lightning McQueen','ماكوين','🏎️'],
+ ['Anyone can cook.','أي حد يقدر يطبخ.','Ratatouille','راتاتوي','Gusteau','جوستو','🐀'],
+ ['No capes!','ممنوع الجِبب!','The Incredibles','الخارقون','Edna Mode','إدنا','🦸'],
+ ['Where is my super suit?','فين بدلتي الخارقة؟','The Incredibles','الخارقون','Frozone','فروزون','🧊'],
+ ['You’re welcome!','العفو!','Moana','موانا','Maui','ماوي','🌊'],
+ ['It’s called a hustle, sweetheart.','دي اسمها شطارة يا حلوة.','Zootopia','زوتوبيا','Nick Wilde','نيك (الثعلب)','🦊'],
+ ['Magic mirror on the wall, who is the fairest one of all?','يا مراية يا اللي على الحيطة، مين أجمل واحدة في الدنيا؟','Snow White','سنو وايت','The Evil Queen','الملكة الشريرة','🪞'],
+ ['Even miracles take a little time.','حتى المعجزات محتاجة شوية وقت.','Cinderella','سندريلا','The Fairy Godmother','الجنية الطيبة','🧚'],
+ ['The flower that blooms in adversity is the most rare and beautiful of all.','الوردة اللي بتفتّح في الصعب هي أندر وأجمل وردة.','Mulan','مولان','The Emperor','الإمبراطور','🌸'],
+ ['I’m a real boy!','أنا ولد حقيقي!','Pinocchio','بينوكيو','Pinocchio','بينوكيو','🤥'],
+ ['Take her to the moon for me.','وصّلها للقمر عشاني.','Inside Out','قلباً وقالباً','Bing Bong','بينج بونج','🌙'],
+ ['Seize your moment!','اغتنم لحظتك!','Coco','كوكو','Ernesto de la Cruz','إرنستو','🎸'],
+ ['Ogres are like onions.','الغيلان زي البصل.','Shrek','شريك','Shrek','شريك','🧅'],
+ ['Yesterday is history, tomorrow is a mystery, but today is a gift.','امبارح تاريخ، وبكرة سر، بس النهارده هدية.','Kung Fu Panda','كونغ فو باندا','Master Oogway','المعلم أوجواي','🐢'],
+ ['Kitty!','بسبس!','Monsters, Inc.','شركة المرعبين','Boo','بو','👧'],
+ ['It’s so fluffy, I’m gonna die!','ده منفوش أوي، هموت!','Despicable Me','أنا الحقير','Agnes','أجنس','🦄'],
+ ['Phenomenal cosmic powers! Itty-bitty living space.','قوى كونية رهيبة! ومكان عيشة صغنن.','Aladdin','علاء الدين','Genie','الجني','🧞'],
+ ['Our fate lives within us. You only have to be brave enough to see it.','قدرنا جوانا، بس محتاج شجاعة عشان تشوفه.','Brave','شجاعة','Merida','ميريدا','🏹']
+];
+const T_FILM=[
+ ['You’re a wizard, Harry.','إنت ساحر يا هاري.','Harry Potter','هاري بوتر','Hagrid','هاجريد','🧙'],
+ ['It’s Levi-O-sa, not Levi-o-SA!','اسمها ليفي-أو-سا، مش ليفي-و-سا!','Harry Potter','هاري بوتر','Hermione Granger','هيرميون','🪄'],
+ ['After all this time? Always.','بعد كل الوقت ده؟ دايماً.','Harry Potter','هاري بوتر','Severus Snape','سنيب','🦌'],
+ ['It does not do to dwell on dreams and forget to live.','مينفعش تعيش في الأحلام وتنسى تعيش.','Harry Potter','هاري بوتر','Albus Dumbledore','دمبلدور','🧙‍♂️'],
+ ['Dobby is free!','دوبي بقى حر!','Harry Potter','هاري بوتر','Dobby','دوبي','🧦'],
+ ['Always winter and never Christmas.','شتا على طول ومفيش كريسماس أبداً.','The Chronicles of Narnia','نارنيا','Mr. Tumnus','مستر تامنس','❄️'],
+ ['Aslan is on the move.','أصلان بيتحرك.','The Chronicles of Narnia','نارنيا','Mr. Beaver','مستر بيفر','🦫'],
+ ['Once a king or queen of Narnia, always a king or queen.','اللي يبقى ملك أو ملكة نارنيا، يفضل ملك أو ملكة على طول.','The Chronicles of Narnia','نارنيا','Aslan','أصلان','🦁'],
+ ['You shall not pass!','مش هتعدّي!','The Lord of the Rings','سيد الخواتم','Gandalf','جاندالف','🧙‍♂️'],
+ ['My precious.','غالي عليّا.','The Lord of the Rings','سيد الخواتم','Gollum','جولام','💍'],
+ ['One does not simply walk into Mordor.','محدش بيدخل موردور كده ببساطة.','The Lord of the Rings','سيد الخواتم','Boromir','بورومير','🗡️'],
+ ['Even the smallest person can change the course of the future.','حتى أصغر شخص يقدر يغيّر المستقبل.','The Lord of the Rings','سيد الخواتم','Galadriel','جالادريل','✨'],
+ ['No, I am your father.','لأ، أنا أبوك.','Star Wars','حرب النجوم','Darth Vader','دارث فيدر','🖤'],
+ ['Do. Or do not. There is no try.','اعمل أو متعملش. مفيش حاجة اسمها هحاول.','Star Wars','حرب النجوم','Yoda','يودا','🟢'],
+ ['I am Groot.','أنا جروت.','Guardians of the Galaxy','حراس المجرة','Groot','جروت','🌳'],
+ ['I can do this all day.','أقدر أعمل كده طول اليوم.','Captain America','كابتن أمريكا','Steve Rogers','ستيف روجرز','🛡️'],
+ ['I am Iron Man.','أنا الرجل الحديدي.','Iron Man','الرجل الحديدي','Tony Stark','توني ستارك','🦾'],
+ ['You will always remember this as the day you almost caught Captain Jack Sparrow!','هتفتكروا اليوم ده على طول إنه اليوم اللي كنتوا هتمسكوا فيه كابتن جاك سبارو!','Pirates of the Caribbean','قراصنة الكاريبي','Jack Sparrow','جاك سبارو','🏴‍☠️'],
+ ['There’s no place like home.','مفيش مكان زي البيت.','The Wizard of Oz','ساحر أوز','Dorothy','دوروثي','👠'],
+ ['With great power comes great responsibility.','القوة الكبيرة معاها مسؤولية كبيرة.','Spider-Man','الرجل العنكبوت','Uncle Ben','عمو بن','🕷️'],
+ ['How you doin’?','إزيك يا جميل؟','Friends','فريندز','Joey Tribbiani','جوي','🍕'],
+ ['We were on a break!','إحنا كنا واخدين بريك!','Friends','فريندز','Ross Geller','روس','🦖'],
+ ['Pivot! Pivot! Pivot!','لِف! لِف! لِف!','Friends','فريندز','Ross Geller','روس','🛋️'],
+ ['Joey doesn’t share food!','جوي مبيشاركش أكله!','Friends','فريندز','Joey Tribbiani','جوي','🍗'],
+ ['Oh. My. God.','يا. نهار. أبيض.','Friends','فريندز','Janice','جانيس','😱'],
+ ['I’m not great at the advice. Can I interest you in a sarcastic comment?','أنا مش شاطر في النصايح. تحب تعليق ساخر بداله؟','Friends','فريندز','Chandler Bing','تشاندلر','😏'],
+ ['They don’t know that we know they know we know!','هما ميعرفوش إننا عارفين إنهم عارفين إننا عارفين!','Friends','فريندز','Phoebe Buffay','فيبي','🎸'],
+ ['Welcome to the real world!','أهلاً بيك في الدنيا الحقيقية!','Friends','فريندز','Monica Geller','مونيكا','👩‍🍳']
+];
+const T_ACTOR=[
+ ['Daniel Radcliffe','Harry Potter','Harry Potter','هاري بوتر','⚡'],['Emma Watson','Harry Potter','Hermione Granger','هيرميون جرينجر','📚'],
+ ['Rupert Grint','Harry Potter','Ron Weasley','رون ويزلي','🐀'],['Alan Rickman','Harry Potter','Severus Snape','سيفيروس سنيب','🧪'],
+ ['Tom Felton','Harry Potter','Draco Malfoy','دراكو مالفوي','🐍'],['Robbie Coltrane','Harry Potter','Rubeus Hagrid','هاجريد','🧔'],
+ ['Maggie Smith','Harry Potter','Minerva McGonagall','ماكجونجال','🐈'],['Ralph Fiennes','Harry Potter','Lord Voldemort','فولدمورت','🐍'],
+ ['Georgie Henley','The Chronicles of Narnia','Lucy Pevensie','لوسي','🚪'],['Skandar Keynes','The Chronicles of Narnia','Edmund Pevensie','إدموند','🍬'],
+ ['Tilda Swinton','The Chronicles of Narnia','The White Witch','الساحرة البيضاء','❄️'],['James McAvoy','The Chronicles of Narnia','Mr. Tumnus','مستر تامنس','☂️'],
+ ['Ian McKellen','The Lord of the Rings','Gandalf','جاندالف','🧙‍♂️'],['Elijah Wood','The Lord of the Rings','Frodo Baggins','فرودو','💍'],
+ ['Orlando Bloom','The Lord of the Rings','Legolas','ليجولاس','🏹'],['Viggo Mortensen','The Lord of the Rings','Aragorn','أراجورن','⚔️'],
+ ['Johnny Depp','Pirates of the Caribbean','Jack Sparrow','جاك سبارو','🏴‍☠️'],
+ ['Jennifer Aniston','Friends','Rachel Green','ريتشل','☕'],['Courteney Cox','Friends','Monica Geller','مونيكا','👩‍🍳'],
+ ['Lisa Kudrow','Friends','Phoebe Buffay','فيبي','🎸'],['Matt LeBlanc','Friends','Joey Tribbiani','جوي','🍕'],
+ ['Matthew Perry','Friends','Chandler Bing','تشاندلر','😏'],['David Schwimmer','Friends','Ross Geller','روس','🦖'],
+ ['Robert Downey Jr.','Iron Man','Tony Stark','توني ستارك','🦾'],['Chris Evans','Captain America','Steve Rogers','ستيف روجرز','🛡️'],
+ ['Tom Holland','Spider-Man','Peter Parker','بيتر باركر','🕷️'],
+ ['Tom Hanks (voice)','Toy Story','Woody','وودي','🤠'],['Tim Allen (voice)','Toy Story','Buzz Lightyear','باز','🚀'],
+ ['Idina Menzel (voice)','Frozen','Elsa','إلسا','❄️'],['Kristen Bell (voice)','Frozen','Anna','آنا','👑'],['Josh Gad (voice)','Frozen','Olaf','أولاف','⛄'],
+ ['Dwayne Johnson (voice)','Moana','Maui','ماوي','🪝'],['Ellen DeGeneres (voice)','Finding Nemo','Dory','دوري','🐟'],['Robin Williams (voice)','Aladdin','Genie','الجني','🧞']
+];
+/* song sections use titles (and public-domain nursery rhymes) only */
+const T_CSONG=[
+ ['Hakuna ___','Matata','ماتاتا','The Lion King','🐗'],['Circle of ___','Life','الحياة','The Lion King','🌍'],
+ ['Can You Feel the Love ___','Tonight','الليلة','The Lion King','💛'],['I Just Can’t Wait to Be ___','King','ملك','The Lion King','👑'],
+ ['Let It ___','Go','يمشي / سيبه','Frozen','❄️'],['Do You Want to Build a ___?','Snowman','راجل تلج','Frozen','⛄'],
+ ['Into the ___','Unknown','المجهول','Frozen 2','🌫️'],['Under the ___','Sea','البحر','The Little Mermaid','🧜‍♀️'],
+ ['Part of Your ___','World','دنيتك','The Little Mermaid','🐚'],['A Whole New ___','World','دنيا','Aladdin','🧞'],
+ ['Friend Like ___','Me','أنا','Aladdin','🪔'],['Be Our ___','Guest','ضيف','Beauty and the Beast','🍽️'],
+ ['Beauty and the ___','Beast','الوحش','Beauty and the Beast','🌹'],['You’ve Got a ___ in Me','Friend','صاحب','Toy Story','🤠'],
+ ['How Far I’ll ___','Go','أروح','Moana','🌊'],['You’re ___','Welcome','العفو','Moana','🪝'],
+ ['Remember ___','Me','افتكرني','Coco','🎸'],['We Don’t Talk About ___','Bruno','برونو','Encanto','🦋'],
+ ['Surface ___','Pressure','ضغط','Encanto','💪'],['Colors of the ___','Wind','الريح','Pocahontas','🍃'],
+ ['I’ll Make a Man Out of ___','You','إنت','Mulan','⚔️'],['When You Wish Upon a ___','Star','نجمة','Pinocchio','⭐'],
+ ['Bibbidi-Bobbidi-___','Boo','بو','Cinderella','🎃'],['The Bare ___','Necessities','الضروريات','The Jungle Book','🐻'],
+ ['I See the ___','Light','النور','Tangled','🏮'],['Almost ___','There','هناك','The Princess and the Frog','🐸'],
+ ['Try ___','Everything','كل حاجة','Zootopia','🐰']
+];
+const T_SONG=[
+ ['Twinkle, twinkle, little ___','star','نجمة','Twinkle Twinkle','⭐'],['How I wonder what you ___','are','تكون','Twinkle Twinkle','✨'],
+ ['Row, row, row your ___','boat','مركب','Row Your Boat','🚣'],['Gently down the ___','stream','النهر','Row Your Boat','🏞️'],
+ ['Old MacDonald had a ___','farm','مزرعة','Old MacDonald','🐄'],['Baa, baa, black ___','sheep','خروف','Baa Baa Black Sheep','🐑'],
+ ['Mary had a little ___','lamb','حمل صغير','Mary Had a Little Lamb','🐑'],['London Bridge is falling ___','down','لتحت','London Bridge','🌉'],
+ ['The wheels on the bus go round and ___','round','لف','Wheels on the Bus','🚌'],['If you’re happy and you know it, clap your ___','hands','إيديك','If You’re Happy','👏'],
+ ['Head, shoulders, knees and ___','toes','صوابع رجلك','Head Shoulders','🦶'],['Humpty Dumpty sat on a ___','wall','حيطة','Humpty Dumpty','🥚'],
+ ['Happy birthday to ___','you','إنت','Happy Birthday','🎂'],['Jingle bells, jingle bells, jingle all the ___','way','الطريق','Jingle Bells','🔔'],
+ ['We wish you a merry ___','Christmas','كريسماس','We Wish You','🎄'],['Rain, rain, go ___','away','بعيد','Rain Rain','🌧️'],
+ ['Hickory, dickory, dock. The mouse ran up the ___','clock','الساعة','Hickory Dickory','🐭'],['Five little monkeys jumping on the ___','bed','السرير','Five Little Monkeys','🐒'],
+ ['Are you sleeping, Brother ___?','John','جون','Brother John','😴'],
+ ['We Are the ___','Champions','الأبطال','Queen','🏆'],['Bohemian ___','Rhapsody','رابسودي','Queen','🎹'],['Dancing ___','Queen','ملكة','ABBA','👑'],
+ ['Here Comes the ___','Sun','الشمس','The Beatles','☀️'],['Yellow ___','Submarine','غواصة','The Beatles','🟡'],['Hey ___','Jude','جود','The Beatles','🎵'],
+ ['Billie ___','Jean','جين','Michael Jackson','🕺'],['Shape of ___','You','إنت','Ed Sheeran','💃'],['Someone Like ___','You','إنت','Adele','💔'],
+ ['Rolling in the ___','Deep','العمق','Adele','🌊'],['Shake It ___','Off','بعيد عنك','Taylor Swift','💃'],['Uptown ___','Funk','فانك','Bruno Mars','🎺'],
+ ['Viva la ___','Vida','الحياة','Coldplay','🌻'],['Counting ___','Stars','النجوم','OneRepublic','✨'],['See You ___','Again','تاني','Wiz Khalifa','👋'],['Blinding ___','Lights','الأنوار','The Weeknd','💡']
+];
+const TRIVIA={
+ tc:{e:'🎬',t:'الجملة دي من أنهي كرتون؟',s:'جملة مشهورة من كرتون ديزني وبيكسار وغيرهم — اختاروا الفيلم',p:'الجملة دي اتقالت في أنهي كرتون؟',
+   deck:()=>T_CARTOON.map(x=>({q:x[0],qa:x[1],en:x[2],ar:x[3],e:x[6],f:x[2]}))},
+ tf:{e:'🍿',t:'الجملة دي من أنهي فيلم؟',s:'هاري بوتر، نارنيا، سيد الخواتم، فريندز وغيرهم',p:'الجملة دي من أنهي فيلم أو مسلسل؟',
+   deck:()=>T_FILM.map(x=>({q:x[0],qa:x[1],en:x[2],ar:x[3],e:x[6],f:x[2]}))},
+ wc:{e:'🗣️',t:'مين قال كده؟ (كرتون)',s:'شخصيات ديزني وبيكسار',p:'مين قال الجملة دي؟',
+   deck:()=>T_CARTOON.map(x=>({q:x[0],qa:x[1],en:x[4],ar:x[5],e:x[6],f:x[2],hint:x[2]}))},
+ wf:{e:'🧙',t:'مين قال كده؟ (أفلام وفريندز)',s:'هاري بوتر، نارنيا، سيد الخواتم، فريندز…',p:'مين قال الجملة دي؟',
+   deck:()=>T_FILM.map(x=>({q:x[0],qa:x[1],en:x[4],ar:x[5],e:x[6],f:x[2],hint:x[2]}))},
+ ac:{e:'🎭',t:'الممثل ده كان اسمه إيه في الفيلم؟',s:'من الممثل للشخصية — هاري بوتر، فريندز، فروزن…',p:'الممثل ده كان اسمه إيه في الفيلم؟',
+   deck:()=>T_ACTOR.map(x=>({q:x[0],en:x[2],ar:x[3],e:x[4],f:x[1],hint:x[1]}))},
+ sc:{e:'🎶',t:'كمّل اسم أغنية الكرتون',s:'«Let It ___» … كمّلوا الكلمة الناقصة',p:'كمّل اسم أغنية الكرتون:',
+   deck:()=>T_CSONG.map(x=>({q:x[0],en:x[1],ar:x[2],e:x[4],f:x[3],hint:x[3]}))},
+ sg:{e:'🎤',t:'كمّل الأغنية',s:'أغاني أطفال مشهورة وأسامي أغاني عالمية',p:'كمّل الأغنية:',
+   deck:()=>T_SONG.map(x=>({q:x[0],en:x[1],ar:x[2],e:x[4],f:x[3],hint:x[3]}))}
+};
+
+Object.keys(TRIVIA).forEach(k=>{GAMES[k]=[TRIVIA[k].e,TRIVIA[k].t,TRIVIA[k].s];});
+function confetti(){
+  try{if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;}catch(e){}
+  const box=document.createElement('div');box.className='confetti';
+  const cs=['var(--coral)','var(--blue)','var(--lav)','var(--ok)','#F5B83D'];
+  box.innerHTML=Array.from({length:70},()=>'<i style="--c:'+pick(cs)+';--x:'+(Math.random()*100)+'%;--r:'+Math.floor(Math.random()*360)+'deg;--d:'+(Math.random()*0.8).toFixed(2)+'s"></i>').join('');
+  document.body.appendChild(box);setTimeout(()=>box.remove(),4000);
+}
+const _deckForBase=deckFor;
+deckFor=function(game,level,need,seed){if(!TRIVIA[game])return _deckForBase(game,level,need,seed);const d=TRIVIA[game].deck();return seed?shuffleSeed(d,seed):shuffle(d);};
+const _pqDealBase=pqDeal;
+pqDeal=function(){
+  if(!TRIVIA[PT.game])return _pqDealBase();
+  const d=PT.deck,q=PT.quota;let start=((PT.turn||0)*q)%Math.max(1,d.length);let slice=d.slice(start,start+q);
+  if(slice.length<q)slice=slice.concat(d.slice(0,q-slice.length));
+  const answers=[...new Set(d.map(x=>x.en))];const arOfA=a=>(d.find(x=>x.en===a)||{}).ar||'';
+  PT.qs=slice.map((e,i)=>{
+    const mix=(arr,k)=>PT.seed?shuffleSeed(arr,PT.seed*31+start+i*7+k):shuffle(arr);
+    const rest=answers.filter(a=>a!==e.en);const same=rest.filter(a=>d.some(x=>x.en===a&&x.f===e.f));
+    const dis=mix(same,1).slice(0,2);mix(rest.filter(a=>!dis.includes(a)),2).forEach(a=>{if(dis.length<3)dis.push(a);});
+    return {e,opts:mix([e].concat(dis.map(a=>({en:a,ar:arOfA(a)}))),3)};
+  });
+  PT.qi=0;PT.streak=0;
+};
+const _pqDrawCoreBase=pqDrawCore;
+pqDrawCore=function(){
+  if(!PT||!TRIVIA[PT.game])return _pqDrawCoreBase();
+  const b=$('#pqbox');if(!b||!PT.q)return;const q=PT.q,T=TRIVIA[PT.game];
+  b.innerHTML='<p class="prompt center" style="margin:0 0 6px">'+T.p+'</p><div class="bubble" style="margin-bottom:18px"><div style="font-size:2rem;line-height:1">'+T.e+'</div><div class="mid en" style="font-size:1.45rem">'+esc(q.e.q)+'</div>'+(q.e.qa?'<div class="ar" style="font-size:.95rem">'+esc(q.e.qa)+'</div>':'')+(q.e.hint&&!q.e.hint.toLowerCase().includes(q.e.en.toLowerCase())?'<div style="margin-top:6px"><span class="tag en">'+esc(q.e.hint)+'</span></div>':'')+'</div>'+
+   '<div class="opts two">'+q.opts.map(o=>'<button class="opt" data-act="pqans" data-v="'+esc(o.en)+'" style="flex-direction:column;justify-content:center;gap:2px"><span class="en" style="font-size:1.1rem;text-align:center">'+esc(o.en)+'</span>'+(o.ar?'<span class="mean">'+esc(o.ar)+'</span>':'')+'</button>').join('')+'</div>';
+  const c=$('#pcount');if(c)c.innerHTML='✅ '+toAr(PT.score)+(PT.streak>=2?' · 🔥 '+toAr(PT.streak)+' ورا بعض':'');
+};
+const _gameCardBase=gameCard;
+gameCard=function(){if(!TRIVIA[PT.game])return _gameCardBase();const g=GAMES[PT.game];return '<div class="card"><div class="vis sm" style="margin:0">'+g[0]+'</div><p class="h2" style="margin:4px 0 0">'+g[1]+'</p><p class="sub" style="margin:8px 0 0">'+g[2]+' · كل ٣ إجابات صح ورا بعض = نقطة بونص 🔥</p></div>';};
+const _finishPartyBase=finishParty;finishParty=function(){_finishPartyBase();setTimeout(confetti,250);};
+const _olCountBase=olCount;olCount=function(){const first=!OL.counted;_olCountBase();if(first)setTimeout(confetti,250);};
+
 /* ============================================================
    Level-based content: after the placement test, and level choice in games
    ============================================================ */
